@@ -51,4 +51,10 @@ Go study with [Go offical documentation](https://go.dev/doc/)
     ```go
     require example.com/greetings v1.1.0
     ```
-    
+
+### **[Return and handle an error](https://go.dev/doc/tutorial/handle-errors.html)**
+
+1. Common error handling in Go: Return an error as a value so the caller can check for it.
+2. `errors.New()` : Import the Go standard library [errors package](https://pkg.go.dev/errors/#example-New) to use `errors.New()` function
+3. `nil` : meaning no error. add in the successful return. That way, the caller can see that the function succeeded.
+4. `log.SetPrefix()` : • Import the [log package](https://pkg.go.dev/log/) to print prefix at the start of its log messages, without a time stamp or source file information.
