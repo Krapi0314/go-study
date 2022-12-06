@@ -1,4 +1,5 @@
 # Go Study
+
 Go study with [Go offical documentation](https://go.dev/doc/)
 
 # Tutorial Summary
@@ -6,50 +7,42 @@ Go study with [Go offical documentation](https://go.dev/doc/)
 ### [Tutorial: Get started with Go](https://go.dev/doc/tutorial/getting-started.html)
 
 - `go mod init` : Enable dependency tracking
-    - **Dependency Tracking**: When your code imports packages contained in other modules, you manage those dependencies through your code's own module. That module is defined by a go.mod file that tracks the modules that provide those packages. That go.mod file stays with your code, including in your source code repository.
+  - **Dependency Tracking**: When your code imports packages contained in other modules, you manage those dependencies through your code's own module. That module is defined by a go.mod file that tracks the modules that provide those packages. That go.mod file stays with your code, including in your source code repository.
 - `go run .` : Run go code
 - `go mod tidy` : Locate dependencies and download imported package and check sums + synchronize and add module
-    - [pkg.go.dev](http://pkg.go.dev) site to find published modules whose packages have functions you can use in your own code
+  - [pkg.go.dev](http://pkg.go.dev) site to find published modules whose packages have functions you can use in your own code
 
 ### [Tutorial:](https://go.dev/doc/tutorial/getting-started.html) [Create a module](https://go.dev/doc/tutorial/create-module.html)
 
 - **Modules**
-    - You collect one or more related packages for a discrete and useful set of functions.
-    - Go code is grouped into packages, and packages are grouped into modules. Your module specifies dependencies needed to run your code, including the Go version and the set of other modules it requires.
-    - If you publish a module, this *must* be a path from which your module can be downloaded by Go tools. That would be your code's repository.
+  - You collect one or more related packages for a discrete and useful set of functions.
+  - Go code is grouped into packages, and packages are grouped into modules. Your module specifies dependencies needed to run your code, including the Go version and the set of other modules it requires.
+  - If you publish a module, this *must* be a path from which your module can be downloaded by Go tools. That would be your code's repository.
 - **Function**
-    
-    ![function-syntax.png](https://go.dev/doc/tutorial/images/function-syntax.png)
-    
-    - In Go, a function whose name starts with a capital letter can be called by a function not in the same package. This is known in Go as an exported name.
+  ![function-syntax.png](https://go.dev/doc/tutorial/images/function-syntax.png)
+  - In Go, a function whose name starts with a capital letter can be called by a function not in the same package. This is known in Go as an exported name.
 - `:= Operator`
-    
+  ```go
+  message := fmt.Sprintf("Hi, %v. Welcome!", name)
+  ```
+  - shortcut for declaring and initializing a variable in one line (Go uses the value on the right to determine the variable's type).
+  - Long verison:
     ```go
-    message := fmt.Sprintf("Hi, %v. Welcome!", name)
+    var message string
+    message = fmt.Sprintf("Hi, %v. Welcome!", name)
     ```
-    
-    - shortcut for declaring and initializing a variable in one line (Go uses the value on the right to determine the variable's type).
-    - Long verison:
-        
-        ```go
-        var message string
-        message = fmt.Sprintf("Hi, %v. Welcome!", name)
-        ```
 
 ### [Tutorial:](https://go.dev/doc/tutorial/getting-started.html) [Call your code from another module](https://go.dev/doc/tutorial/call-module-code.html)
 
 - `main` package: In Go, code executed as an application must be in a main package.
 - `go mod edit -replace` : replace moudle location (ex: replace module location to internal file system)
-    
-    ```go
-    $ go mod edit -replace example.com/greetings=../greetings
-    ```
-    
+  ```go
+  $ go mod edit -replace example.com/greetings=../greetings
+  ```
 - `require` in go.mod: To reference a *published* module, a go.mod file would typically omit the `replace` directive and use a `require` directive with a tagged version number at the end.
-    
-    ```go
-    require example.com/greetings v1.1.0
-    ```
+  ```go
+  require example.com/greetings v1.1.0
+  ```
 
 ### [Tutorial:](https://go.dev/doc/tutorial/getting-started.html) **[Return and handle an error](https://go.dev/doc/tutorial/handle-errors.html)**
 
@@ -76,13 +69,13 @@ Go study with [Go offical documentation](https://go.dev/doc/)
 ### [Tutorial:](https://go.dev/doc/tutorial/getting-started.html) **[Add a test](https://go.dev/doc/tutorial/add-a-test.html)**
 
 - Implement test functions in the same package as the code you're testing.
-- `Test{*Name}` :* Test function names have the form `Test*Name*`, where *Name* says something about the specific test.
+- `Test{*Name}` :* Test function names have the form `Test*Name*`, where *Name\* says something about the specific test.
 - `t *testing.T` : Test functions take a pointer to the `testing`
- package's [testing.T type](https://pkg.go.dev/testing/#T) as a parameter. You use this parameter's methods for reporting and logging from your test.
+   package's [testing.T type](https://pkg.go.dev/testing/#T) as a parameter. You use this parameter's methods for reporting and logging from your test.
 - `t.FatalF()` : Use the `t` parameter's [Fatalf method](https://pkg.go.dev/testing/#T.Fatalf) to print a message to the console and end execution.
-- `go test` : The `go test` command executes test functions (whose names begin with `Test`) in test files (whose names end with _test.go).
-    - The output will include results for only the tests that failed, which can be useful when you have a lot of tests.
-    - You can add the `-v` flag to get verbose output that lists all of the tests and their results.
+- `go test` : The `go test` command executes test functions (whose names begin with `Test`) in test files (whose names end with \_test.go).
+  - The output will include results for only the tests that failed, which can be useful when you have a lot of tests.
+  - You can add the `-v` flag to get verbose output that lists all of the tests and their results.
 
 ### [Tutorial:](https://go.dev/doc/tutorial/getting-started.html) **[Compile and install the application](https://go.dev/doc/tutorial/compile-install.html)**
 
@@ -93,7 +86,7 @@ Go study with [Go offical documentation](https://go.dev/doc/)
 
 # [Tour of Go](https://go.dev/tour/) Summary
 
-## Packages, variables, and functions
+## 1. Packages, variables, and functions
 
 ### Packages
 
@@ -104,7 +97,7 @@ Go study with [Go offical documentation](https://go.dev/doc/)
 - Every Go program is made up of packages.
 - Programs start running in package `main`.
 - By convention, the package name is the same as the last element of the import path.
-    - ex) `"math/rand"` package comprises files that begin with the statement `package rand`.
+  - ex) `"math/rand"` package comprises files that begin with the statement `package rand`.
 
 ### Imports
 
@@ -124,7 +117,7 @@ fmt.Println(math.Pi)
 ```
 
 - A name is exported if it begins with a capital letter
-    - ex) `Pizza` is an exported name, as is `Pi`, which is exported from the `math` package.
+  - ex) `Pizza` is an exported name, as is `Pi`, which is exported from the `math` package.
 
 ### Functions
 
@@ -137,7 +130,7 @@ func add(x int, y int) int {
 - A function can take zero or more arguments.
 - Notice that the type comes *after* the variable name.
 - When two or more consecutive named function parameters share a type, you can omit the type from all but the last.
-    - ex) `x int, y int` → `x, y int`
+  - ex) `x int, y int` → `x, y int`
 
 ### Multiple results
 
@@ -163,8 +156,8 @@ func split(sum int) (x, y int) {
 
 - Go's return values may be named. If so, they are treated as variables defined at the top of the function.
 - These names should be used to document the meaning of the return values.
-- A `return` statement without arguments returns the named return values. This is known as a "*naked*" return.
-    - Naked return statements should be used only in short functions, as with the example shown here. They can harm readability in longer functions.
+- A `return` statement without arguments returns the named return values. This is known as a "_naked_" return.
+  - Naked return statements should be used only in short functions, as with the example shown here. They can harm readability in longer functions.
 
 ### Variables
 
@@ -207,25 +200,23 @@ var (
 - Variable declarations may be "factored" into blocks, as with import statements.
 - The `int`, `uint`, and `uintptr` types are usually 32 bits wide on 32-bit systems and 64 bits wide on 64-bit systems. When you need an integer value you should use `int` unless you have a specific reason to use a sized or unsigned integer type.
 - Go basic types
-    
-    ```go
-    bool
-    
-    string
-    
-    int  int8  int16  int32  int64
-    uint uint8 uint16 uint32 uint64 uintptr
-    
-    byte // alias for uint8
-    
-    rune // alias for int32
-         // represents a Unicode code point
-    
-    float32 float64
-    
-    complex64 complex128
-    ```
-    
+  ```go
+  bool
+
+  string
+
+  int  int8  int16  int32  int64
+  uint uint8 uint16 uint32 uint64 uintptr
+
+  byte // alias for uint8
+
+  rune // alias for int32
+       // represents a Unicode code point
+
+  float32 float64
+
+  complex64 complex128
+  ```
 
 ### **Zero values**
 
@@ -237,10 +228,10 @@ var s string // ""
 ```
 
 - Variables declared without an explicit initial value are given their *zero value*.
-    - The zero value is:
-        - `0` for numeric types,
-        - `false` for the boolean type, and
-        - `""` (the empty string) for strings.
+  - The zero value is:
+    - `0` for numeric types,
+    - `false` for the boolean type, and
+    - `""` (the empty string) for strings.
 
 ### **Type conversions**
 
@@ -421,3 +412,224 @@ func main() {
 ```
 
 - Deferred function calls are pushed onto a stack. When a function returns, its deferred calls are executed in last-in-first-out order.
+
+## 3. More types: structs, slices, and maps
+
+### Pointers
+
+```go
+var p *int
+
+p := &i         // point to i
+fmt.Println(*p) // read i through the pointer
+
+*p = 21         // set i through the pointer
+fmt.Println(i)  // see the new value of i
+```
+
+- Go has pointers. A pointer holds the memory address of a value.
+- The type `*T` is a pointer to a `T` value. Its zero value is `nil`.
+- Like C, `&` operator generates a pointer to its operand, and `*` operator denotes the pointer's underlying value. (known as "dereferencing" or "indirecting".)
+- Unlike C, Go has no pointer arithmetic.
+
+### Structs
+
+```go
+type Vertex struct {
+	X int
+	Y int
+}
+
+v := Vertex{1, 2}
+v.X = 4
+
+fmt.Println(v.X)
+```
+
+- A `struct` is a collection of fields.
+- Struct fields are accessed using a dot.
+
+### **Pointers to structs**
+
+```go
+v := Vertex{1, 2}
+p := &v
+p.X = 1e9
+```
+
+- To access the field `X` of a struct when we have the struct pointer `p` we could write `(*p).X`. However, that notation is cumbersome, so the language permits us instead to write just `p.X`, without the explicit dereference.
+
+### **Struct Literals**
+
+```go
+var (
+	v1 = Vertex{1, 2}  // has type Vertex
+	v2 = Vertex{X: 1}  // Y:0 is implicit
+	v3 = Vertex{}      // X:0 and Y:0
+	p  = &Vertex{1, 2} // has type *Vertex
+)
+```
+
+- A struct literal denotes a newly allocated struct value by listing the values of its fields.
+- You can list just a subset of fields by using the `Name:` syntax. (And the order of named fields is irrelevant.)
+- The special prefix `&` returns a pointer to the struct value.
+
+### Arrays
+
+```go
+var a [2]string
+a[0] = "Hello"
+a[1] = "World"
+```
+
+- The type `[n]T` is an array of `n` values of type `T`.
+- An array's length is part of its type, so arrays cannot be resized.
+
+### **Slices**
+
+```go
+primes := [6]int{2, 3, 5, 7, 11, 13}
+
+var s []int = primes[1:4]
+```
+
+- A slice is a dynamically-sized, flexible view into the elements of an array.
+- In practice, slices are much more common than arrays.
+- The type `[]T` is a slice with elements of type `T`.
+- A slice is formed by specifying two indices, a low and high bound, separated by a colon: `a[low : high]`
+- This selects a half-open range which includes the first element, but excludes the last one.
+
+### **Slices are like references to arrays**
+
+```go
+names := [4]string{
+		"John",
+		"Paul",
+		"George",
+		"Ringo",
+	}
+a := names[0:2]
+b := names[1:3]
+
+b[0] = "XXX"
+```
+
+- A slice does not store any data, it just describes a section of an underlying array.
+- Changing the elements of a slice modifies the corresponding elements of its underlying array.
+- Other slices that share the same underlying array will see those changes.
+
+### **Slice literals**
+
+```go
+r := []bool{true, false, true, true, false, true}
+```
+
+- A slice literal is like an array literal without the length.
+- This creates the same array as above, then builds a slice that references it
+
+### **Slice defaults**
+
+```go
+s = s[:2]
+s = s[1:]
+```
+
+- When slicing, you may omit the high or low bounds to use their defaults instead.
+- The default is zero for the low bound and the length of the slice for the high bound.
+
+### **Slice length and capacity**
+
+```go
+s := []int{2, 3, 5, 7, 11, 13}
+
+// Slice the slice to give it zero length.
+s = s[:0]
+
+// Extend its length.
+s = s[:4]
+
+// Drop its first two values.
+s = s[2:]
+```
+
+- A slice has both a *length* and a *capacity*.
+- The length of a slice is the number of elements it contains.
+- The capacity of a slice is the number of elements in the underlying array, counting from the first element in the slice.
+- The length and capacity of a slice `s` can be obtained using the expressions `len(s)` and `cap(s)`.
+- You can extend a slice's length by re-slicing it, provided it has sufficient capacity.
+
+### **Nil slices**
+
+```go
+var s []int
+```
+
+- The zero value of a slice is `nil`.
+- A nil slice has a length and capacity of 0 and has no underlying array.
+
+### **Creating a slice with make**
+
+```go
+b := make([]int, 0, 5) // len(b)=0, cap(b)=5
+
+b = b[:cap(b)] // len(b)=5, cap(b)=5
+b = b[1:]      // len(b)=4, cap(b)=4
+```
+
+- Slices can be created with the built-in `make` function; this is how you create dynamically-sized arrays.
+- The `make` function allocates a zeroed array and returns a slice that refers to that array. To specify a capacity, pass a third argument to `make`.
+
+### **Slices of slices**
+
+```go
+board := [][]string{
+		[]string{"_", "_", "_"},
+		[]string{"_", "_", "_"},
+		[]string{"_", "_", "_"},
+}
+```
+
+- Slices can contain any type, including other slices.
+
+### **Appending to a slice**
+
+```go
+var s []int
+
+s = append(s, 2, 3, 4)
+```
+
+- It is common to append new elements to a slice, and so Go provides a built-in `append`
+   function.
+- `func append(s []T, vs ...T) []T` : The first parameter `s` of `append` is a slice of type `T`, and the rest are `T` values to append to the slice.
+- If the backing array of `s` is too small to fit, all the given values a bigger array will be allocated. The returned slice will point to the newly allocated array.
+
+### **Range**
+
+```go
+var pow = []int{1, 2, 4, 8, 16, 32, 64, 128}
+
+for i, v := range pow {
+		fmt.Printf("2**%d = %d\n", i, v)
+}
+```
+
+- The `range` form of the `for` loop iterates over a slice or map.
+- When ranging over a slice, two values are returned for each iteration. The first is the index, and the second is a copy of the element at that index.
+
+### **Range continued**
+
+```go
+pow := make([]int, 10)
+
+for i := range pow {
+		pow[i] = 1 << uint(i) // == 2**i
+}
+
+for _, value := range pow {
+		fmt.Printf("%d\n", value)
+}
+```
+
+- `for i, _ := range pow, for _, value` := range pow : You can skip the index or value by assigning to `_`.
+- `for i := range pow` : If you only want the index, you can omit the second variable.
