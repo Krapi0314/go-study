@@ -1518,6 +1518,7 @@ fmt.Println(m.At(0, 0).RGBA())
 ```
 
 - [Package image](https://go.dev/pkg/image/#Image) defines the `Image` interface:
+
   ```go
   package image
 
@@ -1527,6 +1528,7 @@ fmt.Println(m.At(0, 0).RGBA())
       At(x, y int) color.Color
   }
   ```
+
   - the `Rectangle` return value of the `Bounds` method is actually an `[image.Rectangle](https://go.dev/pkg/image/#Rectangle)`, as the declaration is inside package `image`.
   - The `color.Color` and `color.Model` types are also interfaces, but we'll ignore that by using the predefined implementations `color.RGBA` and `color.RGBAModel`. These interfaces and types are specified by the [image/color package](https://go.dev/pkg/image/color/)
 
@@ -1580,3 +1582,49 @@ func main() {
 	pic.ShowImage(m)
 }
 ```
+
+## 5. Generics
+
+### **Type parameters**
+
+```go
+// Index returns the index of x in s, or -1 if not found.
+func Index[T comparable](s []T, x T) int {
+	for i, v := range s {
+		// v and x are type T, which has the comparable
+		// constraint, so we can use == here.
+		if v == x {
+			return i
+		}
+	}
+	return -1
+}
+
+func main() {
+	// Index works on a slice of ints
+	si := []int{10, 20, 15, -10}
+	fmt.Println(Index(si, 15))
+
+	// Index also works on a slice of strings
+	ss := []string{"foo", "bar", "baz"}
+	fmt.Println(Index(ss, "hello"))
+}
+```
+
+- Generic functions: Go functions can be written to work on multiple types using type parameters.
+- `func Index[T comparable](s []T, x T) int` : The type parameters of a function appear between brackets, before the function's arguments.
+  - This declaration means that `s` is a slice of any type `T` that fulfills the built-in constraint `comparable` (`comparable` is a useful constraint that makes it possible to use the `==` and `!=` operators on values of the type.)
+
+### **Generic types**
+
+```go
+// List represents a singly-linked list that holds
+// values of any type.
+type List[T any] struct {
+	next *List[T]
+	val  T
+}
+```
+
+- Go also supports generic types
+- A type can be parameterized with a type parameter, which could be useful for implementing generic data structures.
