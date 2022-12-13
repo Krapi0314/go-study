@@ -1732,3 +1732,331 @@ func main() {
   - `ok` is `false` if there are no more values to receive and the channel is closed.
 - **Note:** Only the sender should close a channel, never the receiver. Sending on a closed channel will cause a panic.
 - **Another note:** Closing is only necessary when the receiver must be told there are no more values coming, such as to terminate a `range` loop.
+
+### Select
+
+```go
+func fibonacci(c, quit chan int) {
+	x, y := 0, 1
+	for {
+		select {
+		case c <- x:
+			x, y = y, x+y
+		case <-quit:
+			fmt.Println("quit")
+			return
+		}
+	}
+}
+
+func main() {
+	c := make(chan int)
+	quit := make(chan int)
+	go func() {
+		for i := 0; i < 10; i++ {
+			fmt.Println(<-c)
+		}
+		quit <- 0
+	}()
+	fibonacci(c, quit)
+}
+```
+
+- The `select` statement lets a goroutine wait on multiple communication operations.
+- A `select` blocks until one of its cases can run, then it executes that case. It chooses one at random if multiple are ready.
+
+### **Default Selection**
+
+```go
+tick := time.Tick(100 * time.Millisecond)
+boom := time.After(500 * time.Millisecond)
+
+for {
+		select {
+			case <-tick:
+				fmt.Println("tick.")
+			case <-boom:
+				fmt.Println("BOOM!")
+				return
+			default:
+				fmt.Println("    .")
+				time.Sleep(50 * time.Millisecond)
+		}
+	}
+```
+
+- The `default` case in a `select` is run if no other case is ready.
+- Use a `default` case to try a send or receive without blocking:
+    
+    ```go
+    select {
+    	case i := <-c:
+    	    // use i
+    	default:
+    	    // receiving from c would block
+    }
+    ```
+    
+
+### **Exercise: Equivalent Binary Trees**
+
+A function to check whether two binary trees store the same sequence is quite complex in most languages. We'll use Go's concurrency and channels to write a simple solution.
+
+**1.** Implement the `Walk` function.
+
+**2.** Test the `Walk` function.
+
+The function `tree.New(k)` constructs a randomly-structured (but always sorted) binary tree holding the values `k`, `2k`, `3k`, ..., `10k`.
+
+Create a new channel `ch` and kick off the walker:
+
+```
+go Walk(tree.New(1), ch)
+```
+
+Then read and print 10 values from the channel. It should be the numbers 1, 2, 3, ..., 10.
+
+**3.** Implement the `Same` function using `Walk` to determine whether `t1` and `t2` store the same values.
+
+**4.** Test the `Same` function.
+
+`Same(tree.New(1), tree.New(1))` should return true, and `Same(tree.New(1), tree.New(2))` should return false.
+
+**Answer Code**
+
+```go
+package main
+
+import (
+	"fmt"
+	"golang.org/x/tour/tree"
+)
+
+// Walk walks the tree t sending all values
+// from the tree to the channel ch.
+func Walk(t *tree.Tree, ch chan int) {
+	if t == nil {
+		return 
+	}
+	Walk(t.Left, ch)
+	ch <- t.Value
+	Walk(t.Right, ch)
+}
+
+// Same determines whether the trees
+// t1 and t2 contain the same values.
+func Same(t1, t2 *tree.Tree) bool {
+	result := true
+	ch1, ch2 := make(chan int), make(chan int)
+	
+	go Walk(t1, ch1)
+	go Walk(t2, ch2)
+	
+	for {
+		v1, ok1 := <-ch1
+		v2, ok2 := <-ch2
+		
+		if (ok1 || ok2) == false {
+			break
+		} else if (ok1 && ok2) == false || v1 != v2 {
+			result = false
+			break
+		}
+	}
+	
+	return result
+}
+
+func main() {
+	fmt.Println(Same(tree.New(1), tree.New(2)))
+}
+```
+
+### **sync.Mutex**
+
+```go
+// SafeCounter is safe to use concurrently.
+type SafeCounter struct {
+	mu sync.Mutex
+	v  map[string]int
+}
+
+// Inc increments the counter for the given key.
+func (c *SafeCounter) Inc(key string) {
+	c.mu.Lock()
+	// Lock so only one goroutine at a time can access the map c.v.
+	c.v[key]++
+	c.mu.Unlock()
+}
+
+// Value returns the current value of the counter for the given key.
+func (c *SafeCounter) Value(key string) int {
+	c.mu.Lock()
+	// Lock so only one goroutine at a time can access the map c.v.
+	defer c.mu.Unlock()
+	return c.v[key]
+}
+
+func main() {
+	c := SafeCounter{v: make(map[string]int)}
+	for i := 0; i < 1000; i++ {
+		go c.Inc("somekey")
+	}
+
+	time.Sleep(time.Second)
+	fmt.Println(c.Value("somekey"))
+}
+```
+
+- Go's standard library provides mutual exclusion with [sync.Mutex](https://go.dev/pkg/sync/#Mutex) and its two methods: `Lock`, `Unlock`
+    - *mutual exclusion:* concept of make sure only one goroutine can access a variable at a time to avoid conflicts
+    - *mutex:* conventional name for the data structure that provides mutual exclusion
+- We can define a block of code to be executed in mutual exclusion by surrounding it with a call to `Lock` and `Unlock`
+    - We can also use `defer` to ensure the mutex will be unlocked as in the `Value` method.
+
+### **Exercise: Web Crawler**
+
+In this exercise you'll use Go's concurrency features to parallelize a web crawler.
+
+Modify the `Crawl` function to fetch URLs in parallel without fetching the same URL twice.
+
+*Hint*: you can keep a cache of the URLs that have been fetched on a map, but maps alone are not safe for concurrent use!
+
+**Answer Code**
+
+```go
+package main
+
+import (
+	"fmt"
+	"sync"
+)
+
+type Cache struct {
+	mu sync.Mutex
+	urls map[string]bool
+}
+
+func (c *Cache) InsertUrls(urls []string) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	
+	for _, url := range urls {
+		c.urls[url] = false
+	}
+}
+
+func (c *Cache) UpdateFetchedUrl(url string) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	
+	c.urls[url] = true
+}
+
+func (c *Cache) IsUrlFetched(url string) bool {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	
+	return c.urls[url]
+}
+
+type Fetcher interface {
+	// Fetch returns the body of URL and
+	// a slice of URLs found on that page.
+	Fetch(url string) (body string, urls []string, err error)
+}
+
+// Crawl uses fetcher to recursively crawl
+// pages starting with url, to a maximum of depth.
+func Crawl(url string, depth int, fetcher Fetcher, cache *Cache, wg *sync.WaitGroup) {
+	defer wg.Done()
+	
+	if depth <= 0 {
+		return
+	}
+	body, urls, err := fetcher.Fetch(url)
+	// insert new urls in cache
+	// and update url fetched
+	cache.InsertUrls(urls)
+	cache.UpdateFetchedUrl(url)
+	
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	
+	fmt.Printf("found: %s %q\n", url, body)
+	for _, u := range urls {
+		// check cache if url is already fetched
+		if !cache.IsUrlFetched(u) {
+			wg.Add(1)
+			go Crawl(u, depth-1, fetcher, cache, wg)
+		}
+	}
+	return
+}
+
+// synced crawl using sync.Metux and sync.WaitGroup
+func SyncCrawl(url string, depth int, fetcher Fetcher) {
+	var wg sync.WaitGroup
+	cache := Cache{urls: make(map[string]bool)}
+	
+	wg.Add(1)
+	go Crawl(url, depth, fetcher, &cache, &wg)
+	wg.Wait()
+}
+
+func main() {
+	SyncCrawl("https://golang.org/", 4, fetcher)
+	fmt.Println("done")
+}
+
+// fakeFetcher is Fetcher that returns canned results.
+type fakeFetcher map[string]*fakeResult
+
+type fakeResult struct {
+	body string
+	urls []string
+}
+
+func (f fakeFetcher) Fetch(url string) (string, []string, error) {
+	if res, ok := f[url]; ok {
+		return res.body, res.urls, nil
+	}
+	return "", nil, fmt.Errorf("not found: %s", url)
+}
+
+// fetcher is a populated fakeFetcher.
+var fetcher = fakeFetcher{
+	"https://golang.org/": &fakeResult{
+		"The Go Programming Language",
+		[]string{
+			"https://golang.org/pkg/",
+			"https://golang.org/cmd/",
+		},
+	},
+	"https://golang.org/pkg/": &fakeResult{
+		"Packages",
+		[]string{
+			"https://golang.org/",
+			"https://golang.org/cmd/",
+			"https://golang.org/pkg/fmt/",
+			"https://golang.org/pkg/os/",
+		},
+	},
+	"https://golang.org/pkg/fmt/": &fakeResult{
+		"Package fmt",
+		[]string{
+			"https://golang.org/",
+			"https://golang.org/pkg/",
+		},
+	},
+	"https://golang.org/pkg/os/": &fakeResult{
+		"Package os",
+		[]string{
+			"https://golang.org/",
+			"https://golang.org/pkg/",
+		},
+	},
+}
+```
