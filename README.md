@@ -2,7 +2,7 @@
 
 Go study with [Go offical documentation](https://go.dev/doc/)
 
-# Tutorial Summary
+# Getting started
 
 ### [Tutorial: Get started with Go](https://go.dev/doc/tutorial/getting-started.html)
 
@@ -82,9 +82,23 @@ Go study with [Go offical documentation](https://go.dev/doc/)
 - `go build` : The [go build command](https://go.dev/cmd/go/#hdr-Compile_packages_and_dependencies) compiles the packages into an executable, along with their dependencies, but it doesn't install the results.
 - `go install` : The [go install command](https://go.dev/ref/mod#go-install) compiles and installs the packages.
 
+### [Tutorial:](https://go.dev/doc/tutorial/getting-started.html) **[Getting started with multi-module workspaces](https://go.dev/doc/tutorial/workspaces.html)**
+
+- `go work init ./hello` : **Initialize the workspace:** The `go work init` command tells `go` to create a `go.work` file for a workspace containing the modules in the `./hello` directory.
+  - The `go` directive tells Go which version of Go the file should be interpreted with. It’s similar to the `go` directive in the `go.mod` file.
+  - The `use` directive tells Go that the module in the `hello` directory should be main modules when doing a build.
+- `go work use ./example` : The `go work use` command adds a new module to the go.work file.
+  - The Go command resolves the `golang.org/x/example` import using the `go.work` file.
+- `go.work` can be used instead of adding [replace](https://go.dev/ref/mod#go-mod-file-replace) directives to work across multiple modules.
+- `go get golang.org/x/example@v0.1.0` : Releasing these modules is done by tagging a commit on the module’s version control repository. That way, the `go` command can properly resolve the modules outside the workspace.
+- The `go` command has a couple of subcommands
+  - `go work use [-r] [dir]` adds a `use` directive to the `go.work` file for `dir`, if it exists, and removes the `use` directory if the argument directory doesn’t exist. The `r` flag examines subdirectories of `dir` recursively.
+  - `go work edit` edits the `go.work` file similarly to `go mod edit`
+  - `go work sync` syncs dependencies from the workspace’s build list into each of the workspace modules.
+
 ---
 
-# [Tour of Go](https://go.dev/tour/) Summary
+## [Tour of Go](https://go.dev/tour/) Summary
 
 ## 1. Packages, variables, and functions
 
