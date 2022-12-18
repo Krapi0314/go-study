@@ -96,6 +96,103 @@ Go study with [Go offical documentation](https://go.dev/doc/)
   - `go work edit` edits the `go.work` file similarly to `go mod edit`
   - `go work sync` syncs dependencies from the workspace’s build list into each of the workspace modules.
 
+### **[Tutorial: Developing a RESTful API with Go and Gin](https://go.dev/doc/tutorial/web-service-gin.html)**
+
+- Basics of writing a RESTful web service API with Go and the [Gin Web Framework](https://gin-gonic.com/docs/) (Gin)
+- Design API endpoints → Prepare Data/Code → Write a handler for response
+- **Design API endpoints**
+  - /albums
+    - `GET` – Get a list of all albums, returned as JSON.
+    - `POST` – Add a new album from request data sent as JSON.
+  - /albums/:id
+    - `GET` – Get an album by its ID, returning the album data as JSON.
+- **Prepare Data/Code**
+  - To keep things simple for the tutorial, you’ll store data in memory. A more typical API would interact with a database.
+- **Write a handler to return all items**
+  - When the client makes a request at `GET /albums`, you want to return all the albums as JSON.
+  - To do this, you’ll write the following: Logic to prepare a response → Code to map the request path to your logic
+  ```go
+  // getAlbums responds with the list of all albums as JSON.
+  func getAlbums(c *gin.Context) {
+      c.IndentedJSON(http.StatusOK, albums)
+  }
+  ```
+  - `gin.Context` : Most important part of Gin. It carries request details, validates and serializes JSON, and more. Function takes a [gin.Context](https://pkg.go.dev/github.com/gin-gonic/gin#Context) parameter.
+  - `Context.IndentedJSON` : Serialize the struct into JSON and add it to the response.
+    - The function’s first argument is the HTTP status code and second argument is JSON. Here, you’re passing the [StatusOK](https://pkg.go.dev/net/http#StatusOK) constant from the `net/http` package to indicate `200 OK`.
+  ```go
+  func main() {
+      router := gin.Default()
+  		// Assign the handler function to an endpoint path.
+      router.GET("/albums", getAlbums)
+
+      router.Run("localhost:8080")
+  }
+  ```
+  - `router.Default` : Initialize a Gin router.
+  - `router.GET` : Use the function to associate the `GET` HTTP method and `/albums` path with a handler function.
+    - Note that you’re passing the *name* of the `getAlbums` function, not the result of the function `getAlbums()`
+  - `router.Run` : Use the function to attach the router to an `http.Server` and start the server.
+  - `go get .` : Get dependencies for code in the current directory
+  - `go run .` : Run code in the current directory.
+- **Write a handler to add a new item**
+  - When the client makes a `POST` request at `/albums`, you want to add the album described in the request body to the existing albums’ data.
+  - To do this, you’ll write the following: Logic to add the new album to the existing list. → A bit of code to route the `POST` request to your logic.
+  ```go
+  // postAlbums adds an album from JSON received in the request body.
+  func postAlbums(c *gin.Context) {
+      var newAlbum album
+
+      // Call BindJSON to bind the received JSON to
+      // newAlbum.
+      if err := c.BindJSON(&newAlbum); err != nil {
+          return
+      }
+
+      // Add the new album to the slice.
+      albums = append(albums, newAlbum)
+      c.IndentedJSON(http.StatusCreated, newAlbum)
+  }
+  ```
+  - `Context.BindJSON` : Bind the request body to `newAlbum`.
+  - Append the `album` struct initialized from the JSON to the `albums` slice.
+  - Add a `201` status code to the response, along with JSON representing the album you added.
+  ```go
+  // change your main function so that it includes the router.POST function
+  router.POST("/albums", postAlbums)
+  ```
+  - `router.POST` : Associate method at the `/albums` path with the `postAlbums` function.
+    - With Gin, you can associate a handler with an HTTP method-and-path combination. In this way, you can separately route requests sent to a single path based on the method the client is using
+- **Write a handler to return a specific item**
+  - When the client makes a request to `GET /albums/[id]`, you want to return the album whose ID matches the `id` path parameter.
+  - To do this, you will: Add logic to retrieve the requested album. → Map the path to the logic.
+  ```go
+  // getAlbumByID locates the album whose ID value matches the id
+  // parameter sent by the client, then returns that album as a response.
+  func getAlbumByID(c *gin.Context) {
+      id := c.Param("id")
+
+      // Loop over the list of albums, looking for
+      // an album whose ID value matches the parameter.
+      for _, a := range albums {
+          if a.ID == id {
+              c.IndentedJSON(http.StatusOK, a)
+              return
+          }
+      }
+      c.IndentedJSON(http.StatusNotFound, gin.H{"message": "album not found"})
+  }
+  ```
+  - `Context.Param` : Retrieve the `id` path parameter from the URL. When you map this handler to a path, you’ll include a placeholder for the parameter in the path.
+  - Loop over the `album` structs in the slice, looking for one whose `ID` field value matches the `id` parameter value. If it’s found, you serialize that `album` struct to JSON and return it as a response with a `200 OK` HTTP code.
+  - Return an HTTP `404` error with [http.StatusNotFound](https://pkg.go.dev/net/http#StatusNotFound) if the album isn’t found.
+  ```go
+  // change your main function so that it includes the router.GET function
+  router.GET("/albums/:id", getAlbumByID)
+  ```
+  - `/albums/:id` : Associate the path with the `getAlbumByID` function.
+    - In Gin, the colon preceding an item in the path signifies that the item is a path parameter.
+
 ---
 
 ## [Tour of Go](https://go.dev/tour/) Summary
@@ -1801,16 +1898,14 @@ for {
 
 - The `default` case in a `select` is run if no other case is ready.
 - Use a `default` case to try a send or receive without blocking:
-    
-    ```go
-    select {
-    	case i := <-c:
-    	    // use i
-    	default:
-    	    // receiving from c would block
-    }
-    ```
-    
+  ```go
+  select {
+  	case i := <-c:
+  	    // use i
+  	default:
+  	    // receiving from c would block
+  }
+  ```
 
 ### **Exercise: Equivalent Binary Trees**
 
@@ -1850,7 +1945,7 @@ import (
 // from the tree to the channel ch.
 func Walk(t *tree.Tree, ch chan int) {
 	if t == nil {
-		return 
+		return
 	}
 	Walk(t.Left, ch)
 	ch <- t.Value
@@ -1862,14 +1957,14 @@ func Walk(t *tree.Tree, ch chan int) {
 func Same(t1, t2 *tree.Tree) bool {
 	result := true
 	ch1, ch2 := make(chan int), make(chan int)
-	
+
 	go Walk(t1, ch1)
 	go Walk(t2, ch2)
-	
+
 	for {
 		v1, ok1 := <-ch1
 		v2, ok2 := <-ch2
-		
+
 		if (ok1 || ok2) == false {
 			break
 		} else if (ok1 && ok2) == false || v1 != v2 {
@@ -1877,7 +1972,7 @@ func Same(t1, t2 *tree.Tree) bool {
 			break
 		}
 	}
-	
+
 	return result
 }
 
@@ -1923,10 +2018,10 @@ func main() {
 ```
 
 - Go's standard library provides mutual exclusion with [sync.Mutex](https://go.dev/pkg/sync/#Mutex) and its two methods: `Lock`, `Unlock`
-    - *mutual exclusion:* concept of make sure only one goroutine can access a variable at a time to avoid conflicts
-    - *mutex:* conventional name for the data structure that provides mutual exclusion
+  - _mutual exclusion:_ concept of make sure only one goroutine can access a variable at a time to avoid conflicts
+  - _mutex:_ conventional name for the data structure that provides mutual exclusion
 - We can define a block of code to be executed in mutual exclusion by surrounding it with a call to `Lock` and `Unlock`
-    - We can also use `defer` to ensure the mutex will be unlocked as in the `Value` method.
+  - We can also use `defer` to ensure the mutex will be unlocked as in the `Value` method.
 
 ### **Exercise: Web Crawler**
 
@@ -1934,7 +2029,7 @@ In this exercise you'll use Go's concurrency features to parallelize a web crawl
 
 Modify the `Crawl` function to fetch URLs in parallel without fetching the same URL twice.
 
-*Hint*: you can keep a cache of the URLs that have been fetched on a map, but maps alone are not safe for concurrent use!
+_Hint_: you can keep a cache of the URLs that have been fetched on a map, but maps alone are not safe for concurrent use!
 
 **Answer Code**
 
@@ -1954,7 +2049,7 @@ type Cache struct {
 func (c *Cache) InsertUrls(urls []string) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
-	
+
 	for _, url := range urls {
 		c.urls[url] = false
 	}
@@ -1963,14 +2058,14 @@ func (c *Cache) InsertUrls(urls []string) {
 func (c *Cache) UpdateFetchedUrl(url string) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
-	
+
 	c.urls[url] = true
 }
 
 func (c *Cache) IsUrlFetched(url string) bool {
 	c.mu.Lock()
 	defer c.mu.Unlock()
-	
+
 	return c.urls[url]
 }
 
@@ -1984,7 +2079,7 @@ type Fetcher interface {
 // pages starting with url, to a maximum of depth.
 func Crawl(url string, depth int, fetcher Fetcher, cache *Cache, wg *sync.WaitGroup) {
 	defer wg.Done()
-	
+
 	if depth <= 0 {
 		return
 	}
@@ -1993,12 +2088,12 @@ func Crawl(url string, depth int, fetcher Fetcher, cache *Cache, wg *sync.WaitGr
 	// and update url fetched
 	cache.InsertUrls(urls)
 	cache.UpdateFetchedUrl(url)
-	
+
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
-	
+
 	fmt.Printf("found: %s %q\n", url, body)
 	for _, u := range urls {
 		// check cache if url is already fetched
@@ -2014,7 +2109,7 @@ func Crawl(url string, depth int, fetcher Fetcher, cache *Cache, wg *sync.WaitGr
 func SyncCrawl(url string, depth int, fetcher Fetcher) {
 	var wg sync.WaitGroup
 	cache := Cache{urls: make(map[string]bool)}
-	
+
 	wg.Add(1)
 	go Crawl(url, depth, fetcher, &cache, &wg)
 	wg.Wait()
