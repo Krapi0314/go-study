@@ -193,6 +193,48 @@ Go study with [Go offical documentation](https://go.dev/doc/)
   - `/albums/:id` : Associate the path with the `getAlbumByID` function.
     - In Gin, the colon preceding an item in the path signifies that the item is a path parameter.
 
+### **[Tutorial: Getting started with generics](https://go.dev/doc/tutorial/generics.html)**
+
+- **Add a generic function to handle multiple types**
+    
+    ```go
+    func SumIntsOrFloats[K comparable, V int64 | float64](m map[K]V) V {}
+    ```
+    
+    - `[K comparable, V int64 | float64]`: Type parameters make the function generic, enabling it to work with arguments of different types
+    
+    ```go
+    SumIntsOrFloats[string, int64](ints)
+    SumIntsOrFloats[string, float64](floats)
+    ```
+    
+    - Specify type arguments – the type names in square brackets
+- **Remove type arguments when calling the generic function**
+    
+    ```go
+    SumIntsOrFloats(ints)
+    SumIntsOrFloats(floats)
+    ```
+    
+    - You can omit type arguments in calling code when the Go compiler can infer the types you want to use. The compiler infers type arguments from the types of function arguments.
+- **Declare a type constraint**
+    
+    ```go
+    type Number interface {
+        int64 | float64
+    }
+    ```
+    
+    - Move the union from the function declaration into a new type constraint.
+        - That way, when you want to constrain a type parameter to either `int64` or `float64`, you can use this `Number` type constraint instead of writing out `int64 | float64`.
+    
+    ```go
+    func SumNumbers[K comparable, V Number](m map[K]V) V {}
+    ```
+    
+    - Declare with new interface type instead of the union as the type constraint.
+
+
 ---
 
 ## [Tour of Go](https://go.dev/tour/) Summary
