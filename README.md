@@ -6,43 +6,57 @@ Go study with [Go offical documentation](https://go.dev/doc/)
 
 ### [Tutorial: Get started with Go](https://go.dev/doc/tutorial/getting-started.html)
 
+> A brief Hello, World tutorial to get started. Learn a bit about Go code, tools, packages, and modules.
+> 
 - `go mod init` : Enable dependency tracking
-  - **Dependency Tracking**: When your code imports packages contained in other modules, you manage those dependencies through your code's own module. That module is defined by a go.mod file that tracks the modules that provide those packages. That go.mod file stays with your code, including in your source code repository.
+    - **Dependency Tracking**: When your code imports packages contained in other modules, you manage those dependencies through your code's own module. That module is defined by a go.mod file that tracks the modules that provide those packages. That go.mod file stays with your code, including in your source code repository.
 - `go run .` : Run go code
 - `go mod tidy` : Locate dependencies and download imported package and check sums + synchronize and add module
-  - [pkg.go.dev](http://pkg.go.dev) site to find published modules whose packages have functions you can use in your own code
+    - [pkg.go.dev](http://pkg.go.dev) site to find published modules whose packages have functions you can use in your own code
 
 ### [Tutorial:](https://go.dev/doc/tutorial/getting-started.html) [Create a module](https://go.dev/doc/tutorial/create-module.html)
 
+> A tutorial of short topics introducing functions, error handling, arrays, maps, unit testing, and compiling.
+> 
 - **Modules**
-  - You collect one or more related packages for a discrete and useful set of functions.
-  - Go code is grouped into packages, and packages are grouped into modules. Your module specifies dependencies needed to run your code, including the Go version and the set of other modules it requires.
-  - If you publish a module, this *must* be a path from which your module can be downloaded by Go tools. That would be your code's repository.
+    - You collect one or more related packages for a discrete and useful set of functions.
+    - Go code is grouped into packages, and packages are grouped into modules. Your module specifies dependencies needed to run your code, including the Go version and the set of other modules it requires.
+    - If you publish a module, this *must* be a path from which your module can be downloaded by Go tools. That would be your code's repository.
 - **Function**
-  ![function-syntax.png](https://go.dev/doc/tutorial/images/function-syntax.png)
-  - In Go, a function whose name starts with a capital letter can be called by a function not in the same package. This is known in Go as an exported name.
+    
+    ![function-syntax.png](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/6fb591da-8c69-4316-b0e5-51431181d3cc/function-syntax.png)
+    
+    - In Go, a function whose name starts with a capital letter can be called by a function not in the same package. This is known in Go as an exported name.
 - `:= Operator`
-  ```go
-  message := fmt.Sprintf("Hi, %v. Welcome!", name)
-  ```
-  - shortcut for declaring and initializing a variable in one line (Go uses the value on the right to determine the variable's type).
-  - Long verison:
+    
     ```go
-    var message string
-    message = fmt.Sprintf("Hi, %v. Welcome!", name)
+    message := fmt.Sprintf("Hi, %v. Welcome!", name)
     ```
+    
+    - shortcut for declaring and initializing a variable in one line (Go uses the value on the right to determine the variable's type).
+    - Long verison:
+        
+        ```go
+        var message string
+        message = fmt.Sprintf("Hi, %v. Welcome!", name)
+        ```
+        
 
 ### [Tutorial:](https://go.dev/doc/tutorial/getting-started.html) [Call your code from another module](https://go.dev/doc/tutorial/call-module-code.html)
 
 - `main` package: In Go, code executed as an application must be in a main package.
 - `go mod edit -replace` : replace moudle location (ex: replace module location to internal file system)
-  ```go
-  $ go mod edit -replace example.com/greetings=../greetings
-  ```
+    
+    ```go
+    $ go mod edit -replace example.com/greetings=../greetings
+    ```
+    
 - `require` in go.mod: To reference a *published* module, a go.mod file would typically omit the `replace` directive and use a `require` directive with a tagged version number at the end.
-  ```go
-  require example.com/greetings v1.1.0
-  ```
+    
+    ```go
+    require example.com/greetings v1.1.0
+    ```
+    
 
 ### [Tutorial:](https://go.dev/doc/tutorial/getting-started.html) **[Return and handle an error](https://go.dev/doc/tutorial/handle-errors.html)**
 
@@ -69,132 +83,150 @@ Go study with [Go offical documentation](https://go.dev/doc/)
 ### [Tutorial:](https://go.dev/doc/tutorial/getting-started.html) **[Add a test](https://go.dev/doc/tutorial/add-a-test.html)**
 
 - Implement test functions in the same package as the code you're testing.
-- `Test{*Name}` :* Test function names have the form `Test*Name*`, where *Name\* says something about the specific test.
+- `Test{*Name}` :* Test function names have the form `Test*Name*`, where *Name* says something about the specific test.
 - `t *testing.T` : Test functions take a pointer to the `testing`
-   package's [testing.T type](https://pkg.go.dev/testing/#T) as a parameter. You use this parameter's methods for reporting and logging from your test.
+ package's [testing.T type](https://pkg.go.dev/testing/#T) as a parameter. You use this parameter's methods for reporting and logging from your test.
 - `t.FatalF()` : Use the `t` parameter's [Fatalf method](https://pkg.go.dev/testing/#T.Fatalf) to print a message to the console and end execution.
-- `go test` : The `go test` command executes test functions (whose names begin with `Test`) in test files (whose names end with \_test.go).
-  - The output will include results for only the tests that failed, which can be useful when you have a lot of tests.
-  - You can add the `-v` flag to get verbose output that lists all of the tests and their results.
+- `go test` : The `go test` command executes test functions (whose names begin with `Test`) in test files (whose names end with _test.go).
+    - The output will include results for only the tests that failed, which can be useful when you have a lot of tests.
+    - You can add the `-v` flag to get verbose output that lists all of the tests and their results.
 
 ### [Tutorial:](https://go.dev/doc/tutorial/getting-started.html) **[Compile and install the application](https://go.dev/doc/tutorial/compile-install.html)**
 
 - `go build` : The [go build command](https://go.dev/cmd/go/#hdr-Compile_packages_and_dependencies) compiles the packages into an executable, along with their dependencies, but it doesn't install the results.
 - `go install` : The [go install command](https://go.dev/ref/mod#go-install) compiles and installs the packages.
 
-### [Tutorial:](https://go.dev/doc/tutorial/getting-started.html) **[Getting started with multi-module workspaces](https://go.dev/doc/tutorial/workspaces.html)**
+### **[Tutorial: Getting started with multi-module workspaces](https://go.dev/doc/tutorial/workspaces.html)**
 
+> Introduces the basics of creating and using multi-module workspaces in Go. Multi-module workspaces are useful for making changes across multiple modules.
+> 
 - `go work init ./hello` : **Initialize the workspace:** The `go work init` command tells `go` to create a `go.work` file for a workspace containing the modules in the `./hello` directory.
-  - The `go` directive tells Go which version of Go the file should be interpreted with. It’s similar to the `go` directive in the `go.mod` file.
-  - The `use` directive tells Go that the module in the `hello` directory should be main modules when doing a build.
+    - The `go` directive tells Go which version of Go the file should be interpreted with. It’s similar to the `go` directive in the `go.mod` file.
+    - The `use` directive tells Go that the module in the `hello` directory should be main modules when doing a build.
 - `go work use ./example` : The `go work use` command adds a new module to the go.work file.
-  - The Go command resolves the `golang.org/x/example` import using the `go.work` file.
+    - The Go command resolves the `golang.org/x/example` import using the `go.work` file.
 - `go.work` can be used instead of adding [replace](https://go.dev/ref/mod#go-mod-file-replace) directives to work across multiple modules.
 - `go get golang.org/x/example@v0.1.0` : Releasing these modules is done by tagging a commit on the module’s version control repository. That way, the `go` command can properly resolve the modules outside the workspace.
 - The `go` command has a couple of subcommands
-  - `go work use [-r] [dir]` adds a `use` directive to the `go.work` file for `dir`, if it exists, and removes the `use` directory if the argument directory doesn’t exist. The `r` flag examines subdirectories of `dir` recursively.
-  - `go work edit` edits the `go.work` file similarly to `go mod edit`
-  - `go work sync` syncs dependencies from the workspace’s build list into each of the workspace modules.
+    - `go work use [-r] [dir]` adds a `use` directive to the `go.work` file for `dir`, if it exists, and removes the `use` directory if the argument directory doesn’t exist. The `r` flag examines subdirectories of `dir` recursively.
+    - `go work edit` edits the `go.work` file similarly to `go mod edit`
+    - `go work sync` syncs dependencies from the workspace’s build list into each of the workspace modules.
 
 ### **[Tutorial: Developing a RESTful API with Go and Gin](https://go.dev/doc/tutorial/web-service-gin.html)**
 
+> Introduces the basics of writing a RESTful web service API with Go and the Gin Web Framework.
+> 
 - Basics of writing a RESTful web service API with Go and the [Gin Web Framework](https://gin-gonic.com/docs/) (Gin)
 - Design API endpoints → Prepare Data/Code → Write a handler for response
 - **Design API endpoints**
-  - /albums
-    - `GET` – Get a list of all albums, returned as JSON.
-    - `POST` – Add a new album from request data sent as JSON.
-  - /albums/:id
-    - `GET` – Get an album by its ID, returning the album data as JSON.
+    - /albums
+        - `GET` – Get a list of all albums, returned as JSON.
+        - `POST` – Add a new album from request data sent as JSON.
+    - /albums/:id
+        - `GET` – Get an album by its ID, returning the album data as JSON.
 - **Prepare Data/Code**
-  - To keep things simple for the tutorial, you’ll store data in memory. A more typical API would interact with a database.
+    - To keep things simple for the tutorial, you’ll store data in memory. A more typical API would interact with a database.
 - **Write a handler to return all items**
-  - When the client makes a request at `GET /albums`, you want to return all the albums as JSON.
-  - To do this, you’ll write the following: Logic to prepare a response → Code to map the request path to your logic
-  ```go
-  // getAlbums responds with the list of all albums as JSON.
-  func getAlbums(c *gin.Context) {
-      c.IndentedJSON(http.StatusOK, albums)
-  }
-  ```
-  - `gin.Context` : Most important part of Gin. It carries request details, validates and serializes JSON, and more. Function takes a [gin.Context](https://pkg.go.dev/github.com/gin-gonic/gin#Context) parameter.
-  - `Context.IndentedJSON` : Serialize the struct into JSON and add it to the response.
-    - The function’s first argument is the HTTP status code and second argument is JSON. Here, you’re passing the [StatusOK](https://pkg.go.dev/net/http#StatusOK) constant from the `net/http` package to indicate `200 OK`.
-  ```go
-  func main() {
-      router := gin.Default()
-  		// Assign the handler function to an endpoint path.
-      router.GET("/albums", getAlbums)
-
-      router.Run("localhost:8080")
-  }
-  ```
-  - `router.Default` : Initialize a Gin router.
-  - `router.GET` : Use the function to associate the `GET` HTTP method and `/albums` path with a handler function.
-    - Note that you’re passing the *name* of the `getAlbums` function, not the result of the function `getAlbums()`
-  - `router.Run` : Use the function to attach the router to an `http.Server` and start the server.
-  - `go get .` : Get dependencies for code in the current directory
-  - `go run .` : Run code in the current directory.
+    - When the client makes a request at `GET /albums`, you want to return all the albums as JSON.
+    - To do this, you’ll write the following: Logic to prepare a response → Code to map the request path to your logic
+    
+    ```go
+    // getAlbums responds with the list of all albums as JSON.
+    func getAlbums(c *gin.Context) {
+        c.IndentedJSON(http.StatusOK, albums)
+    }
+    ```
+    
+    - `gin.Context` : Most important part of Gin. It carries request details, validates and serializes JSON, and more. Function takes a [gin.Context](https://pkg.go.dev/github.com/gin-gonic/gin#Context) parameter.
+    - `Context.IndentedJSON` : Serialize the struct into JSON and add it to the response.
+        - The function’s first argument is the HTTP status code and second argument is JSON. Here, you’re passing the [StatusOK](https://pkg.go.dev/net/http#StatusOK) constant from the `net/http` package to indicate `200 OK`.
+    
+    ```go
+    func main() {
+        router := gin.Default()
+    		// Assign the handler function to an endpoint path.
+        router.GET("/albums", getAlbums)
+    
+        router.Run("localhost:8080")
+    }
+    ```
+    
+    - `router.Default` : Initialize a Gin router.
+    - `router.GET` : Use the function to associate the `GET` HTTP method and `/albums` path with a handler function.
+        - Note that you’re passing the *name* of the `getAlbums` function, not the result of the function `getAlbums()`
+    - `router.Run` : Use the function to attach the router to an `http.Server` and start the server.
+    - `go get .` : Get dependencies for code in the current directory
+    - `go run .` : Run code in the current directory.
 - **Write a handler to add a new item**
-  - When the client makes a `POST` request at `/albums`, you want to add the album described in the request body to the existing albums’ data.
-  - To do this, you’ll write the following: Logic to add the new album to the existing list. → A bit of code to route the `POST` request to your logic.
-  ```go
-  // postAlbums adds an album from JSON received in the request body.
-  func postAlbums(c *gin.Context) {
-      var newAlbum album
-
-      // Call BindJSON to bind the received JSON to
-      // newAlbum.
-      if err := c.BindJSON(&newAlbum); err != nil {
-          return
-      }
-
-      // Add the new album to the slice.
-      albums = append(albums, newAlbum)
-      c.IndentedJSON(http.StatusCreated, newAlbum)
-  }
-  ```
-  - `Context.BindJSON` : Bind the request body to `newAlbum`.
-  - Append the `album` struct initialized from the JSON to the `albums` slice.
-  - Add a `201` status code to the response, along with JSON representing the album you added.
-  ```go
-  // change your main function so that it includes the router.POST function
-  router.POST("/albums", postAlbums)
-  ```
-  - `router.POST` : Associate method at the `/albums` path with the `postAlbums` function.
-    - With Gin, you can associate a handler with an HTTP method-and-path combination. In this way, you can separately route requests sent to a single path based on the method the client is using
+    - When the client makes a `POST` request at `/albums`, you want to add the album described in the request body to the existing albums’ data.
+    - To do this, you’ll write the following: Logic to add the new album to the existing list. → A bit of code to route the `POST` request to your logic.
+    
+    ```go
+    // postAlbums adds an album from JSON received in the request body.
+    func postAlbums(c *gin.Context) {
+        var newAlbum album
+    
+        // Call BindJSON to bind the received JSON to
+        // newAlbum.
+        if err := c.BindJSON(&newAlbum); err != nil {
+            return
+        }
+    
+        // Add the new album to the slice.
+        albums = append(albums, newAlbum)
+        c.IndentedJSON(http.StatusCreated, newAlbum)
+    }
+    ```
+    
+    - `Context.BindJSON` : Bind the request body to `newAlbum`.
+    - Append the `album` struct initialized from the JSON to the `albums` slice.
+    - Add a `201` status code to the response, along with JSON representing the album you added.
+    
+    ```go
+    // change your main function so that it includes the router.POST function
+    router.POST("/albums", postAlbums)
+    ```
+    
+    - `router.POST` : Associate method at the `/albums` path with the `postAlbums` function.
+        - With Gin, you can associate a handler with an HTTP method-and-path combination. In this way, you can separately route requests sent to a single path based on the method the client is using
 - **Write a handler to return a specific item**
-  - When the client makes a request to `GET /albums/[id]`, you want to return the album whose ID matches the `id` path parameter.
-  - To do this, you will: Add logic to retrieve the requested album. → Map the path to the logic.
-  ```go
-  // getAlbumByID locates the album whose ID value matches the id
-  // parameter sent by the client, then returns that album as a response.
-  func getAlbumByID(c *gin.Context) {
-      id := c.Param("id")
-
-      // Loop over the list of albums, looking for
-      // an album whose ID value matches the parameter.
-      for _, a := range albums {
-          if a.ID == id {
-              c.IndentedJSON(http.StatusOK, a)
-              return
-          }
-      }
-      c.IndentedJSON(http.StatusNotFound, gin.H{"message": "album not found"})
-  }
-  ```
-  - `Context.Param` : Retrieve the `id` path parameter from the URL. When you map this handler to a path, you’ll include a placeholder for the parameter in the path.
-  - Loop over the `album` structs in the slice, looking for one whose `ID` field value matches the `id` parameter value. If it’s found, you serialize that `album` struct to JSON and return it as a response with a `200 OK` HTTP code.
-  - Return an HTTP `404` error with [http.StatusNotFound](https://pkg.go.dev/net/http#StatusNotFound) if the album isn’t found.
-  ```go
-  // change your main function so that it includes the router.GET function
-  router.GET("/albums/:id", getAlbumByID)
-  ```
-  - `/albums/:id` : Associate the path with the `getAlbumByID` function.
-    - In Gin, the colon preceding an item in the path signifies that the item is a path parameter.
+    - When the client makes a request to `GET /albums/[id]`, you want to return the album whose ID matches the `id` path parameter.
+    - To do this, you will: Add logic to retrieve the requested album. → Map the path to the logic.
+    
+    ```go
+    // getAlbumByID locates the album whose ID value matches the id
+    // parameter sent by the client, then returns that album as a response.
+    func getAlbumByID(c *gin.Context) {
+        id := c.Param("id")
+    
+        // Loop over the list of albums, looking for
+        // an album whose ID value matches the parameter.
+        for _, a := range albums {
+            if a.ID == id {
+                c.IndentedJSON(http.StatusOK, a)
+                return
+            }
+        }
+        c.IndentedJSON(http.StatusNotFound, gin.H{"message": "album not found"})
+    }
+    ```
+    
+    - `Context.Param` : Retrieve the `id` path parameter from the URL. When you map this handler to a path, you’ll include a placeholder for the parameter in the path.
+    - Loop over the `album` structs in the slice, looking for one whose `ID` field value matches the `id` parameter value. If it’s found, you serialize that `album` struct to JSON and return it as a response with a `200 OK` HTTP code.
+    - Return an HTTP `404` error with [http.StatusNotFound](https://pkg.go.dev/net/http#StatusNotFound) if the album isn’t found.
+    
+    ```go
+    // change your main function so that it includes the router.GET function
+    router.GET("/albums/:id", getAlbumByID)
+    ```
+    
+    - `/albums/:id` : Associate the path with the `getAlbumByID` function.
+        - In Gin, the colon preceding an item in the path signifies that the item is a path parameter.
 
 ### **[Tutorial: Getting started with generics](https://go.dev/doc/tutorial/generics.html)**
 
+> With generics, you can declare and use functions or types that are written to work with any of a set of types provided by calling code.
+> 
 - **Add a generic function to handle multiple types**
     
     ```go
@@ -233,6 +265,36 @@ Go study with [Go offical documentation](https://go.dev/doc/)
     ```
     
     - Declare with new interface type instead of the union as the type constraint.
+
+### **[Tutorial: Getting started with fuzzing](https://go.dev/doc/tutorial/fuzz.html)**
+
+> Fuzzing can generate inputs to your tests that can catch edge cases and security issues that you may have missed.
+> 
+- **Add a fuzz test**
+    - With fuzzing, random data is run against your test in an attempt to find vulnerabilities or crash-causing inputs.
+    
+    ```go
+    func FuzzReverse(f *testing.F) {
+    	tc := []string{}
+    	for _, tc := range testcases {
+    		f.Add(tc) // Use f.Add to provide a seed corpus
+    	}
+    	f.Fuzz(func(t *testing.T, orig string) {
+    		// add test
+    	})
+    }
+    ```
+    
+    - The function begins with `FuzzXxx` instead of `TestXxx`, and takes `*testing.F` instead of `*testing.T`
+    - `f.Fuzz` : takes a fuzz target function whose parameters are `*testing.T` and the types to be fuzzed.
+    - `f.Add` :  fuzz test input as seed corpus inputs
+    - `go test -fuzz=Fuzz` : run fuzz test with fuzzing
+        - The fuzz test will run until it encounters a failing input unless you pass the `-fuzztime` flag. The default is to run forever if no failures occur, and the process can be interrupted with `ctrl-C`.
+        - `go test` : after fuzz test, the new failing seed corpus entry will be used
+- **Fix the invalid error**
+    - `t.Logf` : log useful debugging info to your terminal. It print to the command line if an error occurs, or if executing the test with `-v`, which can help you debug this particular issue.
+    - `go test -run={FuzzTestName}/{filename}` : To run a specific corpus entry within fuzzXXX/testdata, helpful when debugging.
+    - `go test -fuzz=Fuzz -fuzztime 30s` : fuzz for 30 seconds before exiting if no failure was found. If no failure, it returns ok.
 
 
 ---
