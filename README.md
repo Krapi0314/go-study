@@ -7,56 +7,46 @@ Go study with [Go offical documentation](https://go.dev/doc/)
 ### [Tutorial: Get started with Go](https://go.dev/doc/tutorial/getting-started.html)
 
 > A brief Hello, World tutorial to get started. Learn a bit about Go code, tools, packages, and modules.
-> 
+
 - `go mod init` : Enable dependency tracking
-    - **Dependency Tracking**: When your code imports packages contained in other modules, you manage those dependencies through your code's own module. That module is defined by a go.mod file that tracks the modules that provide those packages. That go.mod file stays with your code, including in your source code repository.
+  - **Dependency Tracking**: When your code imports packages contained in other modules, you manage those dependencies through your code's own module. That module is defined by a go.mod file that tracks the modules that provide those packages. That go.mod file stays with your code, including in your source code repository.
 - `go run .` : Run go code
 - `go mod tidy` : Locate dependencies and download imported package and check sums + synchronize and add module
-    - [pkg.go.dev](http://pkg.go.dev) site to find published modules whose packages have functions you can use in your own code
+  - [pkg.go.dev](http://pkg.go.dev) site to find published modules whose packages have functions you can use in your own code
 
 ### [Tutorial:](https://go.dev/doc/tutorial/getting-started.html) [Create a module](https://go.dev/doc/tutorial/create-module.html)
 
 > A tutorial of short topics introducing functions, error handling, arrays, maps, unit testing, and compiling.
-> 
+
 - **Modules**
-    - You collect one or more related packages for a discrete and useful set of functions.
-    - Go code is grouped into packages, and packages are grouped into modules. Your module specifies dependencies needed to run your code, including the Go version and the set of other modules it requires.
-    - If you publish a module, this *must* be a path from which your module can be downloaded by Go tools. That would be your code's repository.
+  - You collect one or more related packages for a discrete and useful set of functions.
+  - Go code is grouped into packages, and packages are grouped into modules. Your module specifies dependencies needed to run your code, including the Go version and the set of other modules it requires.
+  - If you publish a module, this *must* be a path from which your module can be downloaded by Go tools. That would be your code's repository.
 - **Function**
-    
-    ![function-syntax.png](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/6fb591da-8c69-4316-b0e5-51431181d3cc/function-syntax.png)
-    
-    - In Go, a function whose name starts with a capital letter can be called by a function not in the same package. This is known in Go as an exported name.
+  ![function-syntax.png](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/6fb591da-8c69-4316-b0e5-51431181d3cc/function-syntax.png)
+  - In Go, a function whose name starts with a capital letter can be called by a function not in the same package. This is known in Go as an exported name.
 - `:= Operator`
-    
+  ```go
+  message := fmt.Sprintf("Hi, %v. Welcome!", name)
+  ```
+  - shortcut for declaring and initializing a variable in one line (Go uses the value on the right to determine the variable's type).
+  - Long verison:
     ```go
-    message := fmt.Sprintf("Hi, %v. Welcome!", name)
+    var message string
+    message = fmt.Sprintf("Hi, %v. Welcome!", name)
     ```
-    
-    - shortcut for declaring and initializing a variable in one line (Go uses the value on the right to determine the variable's type).
-    - Long verison:
-        
-        ```go
-        var message string
-        message = fmt.Sprintf("Hi, %v. Welcome!", name)
-        ```
-        
 
 ### [Tutorial:](https://go.dev/doc/tutorial/getting-started.html) [Call your code from another module](https://go.dev/doc/tutorial/call-module-code.html)
 
 - `main` package: In Go, code executed as an application must be in a main package.
 - `go mod edit -replace` : replace moudle location (ex: replace module location to internal file system)
-    
-    ```go
-    $ go mod edit -replace example.com/greetings=../greetings
-    ```
-    
+  ```go
+  $ go mod edit -replace example.com/greetings=../greetings
+  ```
 - `require` in go.mod: To reference a *published* module, a go.mod file would typically omit the `replace` directive and use a `require` directive with a tagged version number at the end.
-    
-    ```go
-    require example.com/greetings v1.1.0
-    ```
-    
+  ```go
+  require example.com/greetings v1.1.0
+  ```
 
 ### [Tutorial:](https://go.dev/doc/tutorial/getting-started.html) **[Return and handle an error](https://go.dev/doc/tutorial/handle-errors.html)**
 
@@ -83,13 +73,13 @@ Go study with [Go offical documentation](https://go.dev/doc/)
 ### [Tutorial:](https://go.dev/doc/tutorial/getting-started.html) **[Add a test](https://go.dev/doc/tutorial/add-a-test.html)**
 
 - Implement test functions in the same package as the code you're testing.
-- `Test{*Name}` :* Test function names have the form `Test*Name*`, where *Name* says something about the specific test.
+- `Test{*Name}` :* Test function names have the form `Test*Name*`, where *Name\* says something about the specific test.
 - `t *testing.T` : Test functions take a pointer to the `testing`
- package's [testing.T type](https://pkg.go.dev/testing/#T) as a parameter. You use this parameter's methods for reporting and logging from your test.
+   package's [testing.T type](https://pkg.go.dev/testing/#T) as a parameter. You use this parameter's methods for reporting and logging from your test.
 - `t.FatalF()` : Use the `t` parameter's [Fatalf method](https://pkg.go.dev/testing/#T.Fatalf) to print a message to the console and end execution.
-- `go test` : The `go test` command executes test functions (whose names begin with `Test`) in test files (whose names end with _test.go).
-    - The output will include results for only the tests that failed, which can be useful when you have a lot of tests.
-    - You can add the `-v` flag to get verbose output that lists all of the tests and their results.
+- `go test` : The `go test` command executes test functions (whose names begin with `Test`) in test files (whose names end with \_test.go).
+  - The output will include results for only the tests that failed, which can be useful when you have a lot of tests.
+  - You can add the `-v` flag to get verbose output that lists all of the tests and their results.
 
 ### [Tutorial:](https://go.dev/doc/tutorial/getting-started.html) **[Compile and install the application](https://go.dev/doc/tutorial/compile-install.html)**
 
@@ -99,203 +89,615 @@ Go study with [Go offical documentation](https://go.dev/doc/)
 ### **[Tutorial: Getting started with multi-module workspaces](https://go.dev/doc/tutorial/workspaces.html)**
 
 > Introduces the basics of creating and using multi-module workspaces in Go. Multi-module workspaces are useful for making changes across multiple modules.
-> 
+
 - `go work init ./hello` : **Initialize the workspace:** The `go work init` command tells `go` to create a `go.work` file for a workspace containing the modules in the `./hello` directory.
-    - The `go` directive tells Go which version of Go the file should be interpreted with. It’s similar to the `go` directive in the `go.mod` file.
-    - The `use` directive tells Go that the module in the `hello` directory should be main modules when doing a build.
+  - The `go` directive tells Go which version of Go the file should be interpreted with. It’s similar to the `go` directive in the `go.mod` file.
+  - The `use` directive tells Go that the module in the `hello` directory should be main modules when doing a build.
 - `go work use ./example` : The `go work use` command adds a new module to the go.work file.
-    - The Go command resolves the `golang.org/x/example` import using the `go.work` file.
+  - The Go command resolves the `golang.org/x/example` import using the `go.work` file.
 - `go.work` can be used instead of adding [replace](https://go.dev/ref/mod#go-mod-file-replace) directives to work across multiple modules.
 - `go get golang.org/x/example@v0.1.0` : Releasing these modules is done by tagging a commit on the module’s version control repository. That way, the `go` command can properly resolve the modules outside the workspace.
 - The `go` command has a couple of subcommands
-    - `go work use [-r] [dir]` adds a `use` directive to the `go.work` file for `dir`, if it exists, and removes the `use` directory if the argument directory doesn’t exist. The `r` flag examines subdirectories of `dir` recursively.
-    - `go work edit` edits the `go.work` file similarly to `go mod edit`
-    - `go work sync` syncs dependencies from the workspace’s build list into each of the workspace modules.
+  - `go work use [-r] [dir]` adds a `use` directive to the `go.work` file for `dir`, if it exists, and removes the `use` directory if the argument directory doesn’t exist. The `r` flag examines subdirectories of `dir` recursively.
+  - `go work edit` edits the `go.work` file similarly to `go mod edit`
+  - `go work sync` syncs dependencies from the workspace’s build list into each of the workspace modules.
 
 ### **[Tutorial: Developing a RESTful API with Go and Gin](https://go.dev/doc/tutorial/web-service-gin.html)**
 
 > Introduces the basics of writing a RESTful web service API with Go and the Gin Web Framework.
-> 
+
 - Basics of writing a RESTful web service API with Go and the [Gin Web Framework](https://gin-gonic.com/docs/) (Gin)
 - Design API endpoints → Prepare Data/Code → Write a handler for response
-- **Design API endpoints**
-    - /albums
-        - `GET` – Get a list of all albums, returned as JSON.
-        - `POST` – Add a new album from request data sent as JSON.
-    - /albums/:id
-        - `GET` – Get an album by its ID, returning the album data as JSON.
-- **Prepare Data/Code**
-    - To keep things simple for the tutorial, you’ll store data in memory. A more typical API would interact with a database.
-- **Write a handler to return all items**
-    - When the client makes a request at `GET /albums`, you want to return all the albums as JSON.
-    - To do this, you’ll write the following: Logic to prepare a response → Code to map the request path to your logic
-    
-    ```go
-    // getAlbums responds with the list of all albums as JSON.
-    func getAlbums(c *gin.Context) {
-        c.IndentedJSON(http.StatusOK, albums)
+
+**Design API endpoints**
+
+- /albums
+  - `GET` – Get a list of all albums, returned as JSON.
+  - `POST` – Add a new album from request data sent as JSON.
+- /albums/:id
+  - `GET` – Get an album by its ID, returning the album data as JSON.
+
+**Prepare Data/Code**
+
+- To keep things simple for the tutorial, you’ll store data in memory. A more typical API would interact with a database.
+
+**Write a handler to return all items**
+
+- When the client makes a request at `GET /albums`, you want to return all the albums as JSON.
+- To do this, you’ll write the following: Logic to prepare a response → Code to map the request path to your logic
+
+```go
+// getAlbums responds with the list of all albums as JSON.
+func getAlbums(c *gin.Context) {
+    c.IndentedJSON(http.StatusOK, albums)
+}
+```
+
+- `gin.Context` : Most important part of Gin. It carries request details, validates and serializes JSON, and more. Function takes a [gin.Context](https://pkg.go.dev/github.com/gin-gonic/gin#Context) parameter.
+- `Context.IndentedJSON` : Serialize the struct into JSON and add it to the response.
+  - The function’s first argument is the HTTP status code and second argument is JSON. Here, you’re passing the [StatusOK](https://pkg.go.dev/net/http#StatusOK) constant from the `net/http` package to indicate `200 OK`.
+
+```go
+func main() {
+    router := gin.Default()
+		// Assign the handler function to an endpoint path.
+    router.GET("/albums", getAlbums)
+
+    router.Run("localhost:8080")
+}
+```
+
+- `router.Default` : Initialize a Gin router.
+- `router.GET` : Use the function to associate the `GET` HTTP method and `/albums` path with a handler function.
+  - Note that you’re passing the *name* of the `getAlbums` function, not the result of the function `getAlbums()`
+- `router.Run` : Use the function to attach the router to an `http.Server` and start the server.
+- `go get .` : Get dependencies for code in the current directory
+- `go run .` : Run code in the current directory.
+
+**Write a handler to add a new item**
+
+- When the client makes a `POST` request at `/albums`, you want to add the album described in the request body to the existing albums’ data.
+- To do this, you’ll write the following: Logic to add the new album to the existing list. → A bit of code to route the `POST` request to your logic.
+
+```go
+// postAlbums adds an album from JSON received in the request body.
+func postAlbums(c *gin.Context) {
+    var newAlbum album
+
+    // Call BindJSON to bind the received JSON to
+    // newAlbum.
+    if err := c.BindJSON(&newAlbum); err != nil {
+        return
     }
-    ```
-    
-    - `gin.Context` : Most important part of Gin. It carries request details, validates and serializes JSON, and more. Function takes a [gin.Context](https://pkg.go.dev/github.com/gin-gonic/gin#Context) parameter.
-    - `Context.IndentedJSON` : Serialize the struct into JSON and add it to the response.
-        - The function’s first argument is the HTTP status code and second argument is JSON. Here, you’re passing the [StatusOK](https://pkg.go.dev/net/http#StatusOK) constant from the `net/http` package to indicate `200 OK`.
-    
-    ```go
-    func main() {
-        router := gin.Default()
-    		// Assign the handler function to an endpoint path.
-        router.GET("/albums", getAlbums)
-    
-        router.Run("localhost:8080")
-    }
-    ```
-    
-    - `router.Default` : Initialize a Gin router.
-    - `router.GET` : Use the function to associate the `GET` HTTP method and `/albums` path with a handler function.
-        - Note that you’re passing the *name* of the `getAlbums` function, not the result of the function `getAlbums()`
-    - `router.Run` : Use the function to attach the router to an `http.Server` and start the server.
-    - `go get .` : Get dependencies for code in the current directory
-    - `go run .` : Run code in the current directory.
-- **Write a handler to add a new item**
-    - When the client makes a `POST` request at `/albums`, you want to add the album described in the request body to the existing albums’ data.
-    - To do this, you’ll write the following: Logic to add the new album to the existing list. → A bit of code to route the `POST` request to your logic.
-    
-    ```go
-    // postAlbums adds an album from JSON received in the request body.
-    func postAlbums(c *gin.Context) {
-        var newAlbum album
-    
-        // Call BindJSON to bind the received JSON to
-        // newAlbum.
-        if err := c.BindJSON(&newAlbum); err != nil {
+
+    // Add the new album to the slice.
+    albums = append(albums, newAlbum)
+    c.IndentedJSON(http.StatusCreated, newAlbum)
+}
+```
+
+- `Context.BindJSON` : Bind the request body to `newAlbum`.
+- Append the `album` struct initialized from the JSON to the `albums` slice.
+- Add a `201` status code to the response, along with JSON representing the album you added.
+
+```go
+// change your main function so that it includes the router.POST function
+router.POST("/albums", postAlbums)
+```
+
+- `router.POST` : Associate method at the `/albums` path with the `postAlbums` function.
+  - With Gin, you can associate a handler with an HTTP method-and-path combination. In this way, you can separately route requests sent to a single path based on the method the client is using
+
+**Write a handler to return a specific item**
+
+- When the client makes a request to `GET /albums/[id]`, you want to return the album whose ID matches the `id` path parameter.
+- To do this, you will: Add logic to retrieve the requested album. → Map the path to the logic.
+
+```go
+// getAlbumByID locates the album whose ID value matches the id
+// parameter sent by the client, then returns that album as a response.
+func getAlbumByID(c *gin.Context) {
+    id := c.Param("id")
+
+    // Loop over the list of albums, looking for
+    // an album whose ID value matches the parameter.
+    for _, a := range albums {
+        if a.ID == id {
+            c.IndentedJSON(http.StatusOK, a)
             return
         }
-    
-        // Add the new album to the slice.
-        albums = append(albums, newAlbum)
-        c.IndentedJSON(http.StatusCreated, newAlbum)
     }
-    ```
-    
-    - `Context.BindJSON` : Bind the request body to `newAlbum`.
-    - Append the `album` struct initialized from the JSON to the `albums` slice.
-    - Add a `201` status code to the response, along with JSON representing the album you added.
-    
-    ```go
-    // change your main function so that it includes the router.POST function
-    router.POST("/albums", postAlbums)
-    ```
-    
-    - `router.POST` : Associate method at the `/albums` path with the `postAlbums` function.
-        - With Gin, you can associate a handler with an HTTP method-and-path combination. In this way, you can separately route requests sent to a single path based on the method the client is using
-- **Write a handler to return a specific item**
-    - When the client makes a request to `GET /albums/[id]`, you want to return the album whose ID matches the `id` path parameter.
-    - To do this, you will: Add logic to retrieve the requested album. → Map the path to the logic.
-    
-    ```go
-    // getAlbumByID locates the album whose ID value matches the id
-    // parameter sent by the client, then returns that album as a response.
-    func getAlbumByID(c *gin.Context) {
-        id := c.Param("id")
-    
-        // Loop over the list of albums, looking for
-        // an album whose ID value matches the parameter.
-        for _, a := range albums {
-            if a.ID == id {
-                c.IndentedJSON(http.StatusOK, a)
-                return
-            }
-        }
-        c.IndentedJSON(http.StatusNotFound, gin.H{"message": "album not found"})
-    }
-    ```
-    
-    - `Context.Param` : Retrieve the `id` path parameter from the URL. When you map this handler to a path, you’ll include a placeholder for the parameter in the path.
-    - Loop over the `album` structs in the slice, looking for one whose `ID` field value matches the `id` parameter value. If it’s found, you serialize that `album` struct to JSON and return it as a response with a `200 OK` HTTP code.
-    - Return an HTTP `404` error with [http.StatusNotFound](https://pkg.go.dev/net/http#StatusNotFound) if the album isn’t found.
-    
-    ```go
-    // change your main function so that it includes the router.GET function
-    router.GET("/albums/:id", getAlbumByID)
-    ```
-    
-    - `/albums/:id` : Associate the path with the `getAlbumByID` function.
-        - In Gin, the colon preceding an item in the path signifies that the item is a path parameter.
+    c.IndentedJSON(http.StatusNotFound, gin.H{"message": "album not found"})
+}
+```
+
+- `Context.Param` : Retrieve the `id` path parameter from the URL. When you map this handler to a path, you’ll include a placeholder for the parameter in the path.
+- Loop over the `album` structs in the slice, looking for one whose `ID` field value matches the `id` parameter value. If it’s found, you serialize that `album` struct to JSON and return it as a response with a `200 OK` HTTP code.
+- Return an HTTP `404` error with [http.StatusNotFound](https://pkg.go.dev/net/http#StatusNotFound) if the album isn’t found.
+
+```go
+// change your main function so that it includes the router.GET function
+router.GET("/albums/:id", getAlbumByID)
+```
+
+- `/albums/:id` : Associate the path with the `getAlbumByID` function.
+  - In Gin, the colon preceding an item in the path signifies that the item is a path parameter.
 
 ### **[Tutorial: Getting started with generics](https://go.dev/doc/tutorial/generics.html)**
 
 > With generics, you can declare and use functions or types that are written to work with any of a set of types provided by calling code.
-> 
-- **Add a generic function to handle multiple types**
-    
-    ```go
-    func SumIntsOrFloats[K comparable, V int64 | float64](m map[K]V) V {}
-    ```
-    
-    - `[K comparable, V int64 | float64]`: Type parameters make the function generic, enabling it to work with arguments of different types
-    
-    ```go
-    SumIntsOrFloats[string, int64](ints)
-    SumIntsOrFloats[string, float64](floats)
-    ```
-    
-    - Specify type arguments – the type names in square brackets
-- **Remove type arguments when calling the generic function**
-    
-    ```go
-    SumIntsOrFloats(ints)
-    SumIntsOrFloats(floats)
-    ```
-    
-    - You can omit type arguments in calling code when the Go compiler can infer the types you want to use. The compiler infers type arguments from the types of function arguments.
-- **Declare a type constraint**
-    
-    ```go
-    type Number interface {
-        int64 | float64
-    }
-    ```
-    
-    - Move the union from the function declaration into a new type constraint.
-        - That way, when you want to constrain a type parameter to either `int64` or `float64`, you can use this `Number` type constraint instead of writing out `int64 | float64`.
-    
-    ```go
-    func SumNumbers[K comparable, V Number](m map[K]V) V {}
-    ```
-    
-    - Declare with new interface type instead of the union as the type constraint.
+
+**Add a generic function to handle multiple types**
+
+```go
+func SumIntsOrFloats[K comparable, V int64 | float64](m map[K]V) V {}
+```
+
+- `[K comparable, V int64 | float64]`: Type parameters make the function generic, enabling it to work with arguments of different types
+
+```go
+SumIntsOrFloats[string, int64](ints)
+SumIntsOrFloats[string, float64](floats)
+```
+
+- Specify type arguments – the type names in square brackets
+
+**Remove type arguments when calling the generic function**
+
+```go
+SumIntsOrFloats(ints)
+SumIntsOrFloats(floats)
+```
+
+- You can omit type arguments in calling code when the Go compiler can infer the types you want to use. The compiler infers type arguments from the types of function arguments.
+
+**Declare a type constraint**
+
+```go
+type Number interface {
+    int64 | float64
+}
+```
+
+- Move the union from the function declaration into a new type constraint.
+  - That way, when you want to constrain a type parameter to either `int64` or `float64`, you can use this `Number` type constraint instead of writing out `int64 | float64`.
+
+```go
+func SumNumbers[K comparable, V Number](m map[K]V) V {}
+```
+
+- Declare with new interface type instead of the union as the type constraint.
 
 ### **[Tutorial: Getting started with fuzzing](https://go.dev/doc/tutorial/fuzz.html)**
 
 > Fuzzing can generate inputs to your tests that can catch edge cases and security issues that you may have missed.
-> 
-- **Add a fuzz test**
-    - With fuzzing, random data is run against your test in an attempt to find vulnerabilities or crash-causing inputs.
-    
-    ```go
-    func FuzzReverse(f *testing.F) {
-    	tc := []string{}
-    	for _, tc := range testcases {
-    		f.Add(tc) // Use f.Add to provide a seed corpus
-    	}
-    	f.Fuzz(func(t *testing.T, orig string) {
-    		// add test
-    	})
-    }
-    ```
-    
-    - The function begins with `FuzzXxx` instead of `TestXxx`, and takes `*testing.F` instead of `*testing.T`
-    - `f.Fuzz` : takes a fuzz target function whose parameters are `*testing.T` and the types to be fuzzed.
-    - `f.Add` :  fuzz test input as seed corpus inputs
-    - `go test -fuzz=Fuzz` : run fuzz test with fuzzing
-        - The fuzz test will run until it encounters a failing input unless you pass the `-fuzztime` flag. The default is to run forever if no failures occur, and the process can be interrupted with `ctrl-C`.
-        - `go test` : after fuzz test, the new failing seed corpus entry will be used
-- **Fix the invalid error**
-    - `t.Logf` : log useful debugging info to your terminal. It print to the command line if an error occurs, or if executing the test with `-v`, which can help you debug this particular issue.
-    - `go test -run={FuzzTestName}/{filename}` : To run a specific corpus entry within fuzzXXX/testdata, helpful when debugging.
-    - `go test -fuzz=Fuzz -fuzztime 30s` : fuzz for 30 seconds before exiting if no failure was found. If no failure, it returns ok.
 
+**Add a fuzz test**
+
+- With fuzzing, random data is run against your test in an attempt to find vulnerabilities or crash-causing inputs.
+
+```go
+func FuzzReverse(f *testing.F) {
+	tc := []string{}
+	for _, tc := range testcases {
+		f.Add(tc) // Use f.Add to provide a seed corpus
+	}
+	f.Fuzz(func(t *testing.T, orig string) {
+		// add test
+	})
+}
+```
+
+- The function begins with `FuzzXxx` instead of `TestXxx`, and takes `*testing.F` instead of `*testing.T`
+- `f.Fuzz` : takes a fuzz target function whose parameters are `*testing.T` and the types to be fuzzed.
+- `f.Add` : fuzz test input as seed corpus inputs
+- `go test -fuzz=Fuzz` : run fuzz test with fuzzing
+  - The fuzz test will run until it encounters a failing input unless you pass the `-fuzztime` flag. The default is to run forever if no failures occur, and the process can be interrupted with `ctrl-C`.
+  - `go test` : after fuzz test, the new failing seed corpus entry will be used
+
+**Fix the invalid error**
+
+- `t.Logf` : log useful debugging info to your terminal. It print to the command line if an error occurs, or if executing the test with `-v`, which can help you debug this particular issue.
+- `go test -run={FuzzTestName}/{filename}` : To run a specific corpus entry within fuzzXXX/testdata, helpful when debugging.
+- `go test -fuzz=Fuzz -fuzztime 30s` : fuzz for 30 seconds before exiting if no failure was found. If no failure, it returns ok.
+
+### **[Writing Web Applications](https://go.dev/doc/articles/wiki/)**
+
+> Building a simple web application.
+
+**Data Structures with `OS` package IO**
+
+```go
+type Page struct {
+    Title string
+    Body  []byte
+}
+
+func loadPage(title string) (*Page, error) {
+    filename := title + ".txt"
+    body, err := os.ReadFile(filename)
+    if err != nil {
+        return nil, err
+    }
+    return &Page{Title: title, Body: body}, nil
+}
+```
+
+- Build data strcuture with `struct`
+- `os.writeFile()`, `os.ReadFile()`: file I/O (write/read) with error handling
+
+**Using `net/http` to serve pages]**
+
+Full working simple web server with `net/http` package
+
+```go
+func viewHandler(w http.ResponseWriter, r *http.Request) {
+	title := r.URL.Path[len("/view/"):]
+	p, _ := loadPage(title)
+	fmt.Fprintf(w, "<h1>%s</h1><div>%s</div>", p.Title, p.Body)
+}
+
+func main() {
+	http.HandleFunc("/view/", viewHandler)
+	log.Fatal(http.ListenAndServe(":8080", nil))
+}
+```
+
+- `http.HandleFunc()` : tells the `http` package to handle all requests to path with `handler`
+  - `handler` is of the type `http.HandlerFunc`. It takes an `http.ResponseWriter` and an `http.Request` as its arguments.
+    - `http.ResponseWriter` : value assembles the HTTP server's response; by writing to it, we send data to the HTTP client.
+    - `http.Request` : a data structure that represents the client HTTP request. `r.URL.Path` is the path component of the request URL.
+- `http.ListenAndServe()` : that it should listen on port on any interface
+  - `ListenAndServe` always returns an error, since it only returns when an unexpected error occurs. In order to log that error we wrap the function call with `log.Fatal`.
+
+**The `html/template` package**
+
+`html/template` keep the HTML in a separate file, allowing us to change the layout of our edit page without modifying the underlying Go code.
+
+```go
+<h1>Editing {{.Title}}</h1>
+
+<form action="/save/{{.Title}}" method="POST">
+<div><textarea name="body" rows="20" cols="80">{{printf "%s" .Body}}</textarea></div>
+<div><input type="submit" value="Save"></div>
+</form>
+```
+
+```go
+func editHandler(w http.ResponseWriter, r *http.Request) {
+    title := r.URL.Path[len("/edit/"):]
+    p, err := loadPage(title)
+    if err != nil {
+        p = &Page{Title: title}
+    }
+    t, _ := template.ParseFiles("edit.html")
+    t.Execute(w, p)
+}
+```
+
+- `template.ParseFiles()` : will read the contents of file and return a `*template.Template`.
+  - `{{.Title}}` : Template directives are enclosed in double curly braces.
+- `t.Execute()` : executes the template, writing the generated HTML to the `http.ResponseWriter`.
+
+**Error handling**
+
+Handling error will ensure that when something does go wrong, the server will function exactly how we want and the user can be notified
+
+```go
+func viewHandler(w http.ResponseWriter, r *http.Request) {
+    title := r.URL.Path[len("/view/"):]
+    p, err := loadPage(title)
+    if err != nil {
+        http.Redirect(w, r, "/edit/"+title, http.StatusFound)
+        return
+    }
+    renderTemplate(w, "view", p)
+}
+
+func renderTemplate(w http.ResponseWriter, tmpl string, p *Page) {
+    t, err := template.ParseFiles(tmpl + ".html")
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+        return
+    }
+    err = t.Execute(w, p)
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+    }
+}
+```
+
+- Error handling with `http.Redirect()`, in this case redirecting to edit page to make new page for it.
+- `http.Error()` : specified HTTP response code (in this case "Internal Server Error") and error message.
+
+**Template caching**
+
+There is an inefficiency in this code: `renderTemplate` calls `ParseFiles` every time a page is rendered. A better approach would be to call `ParseFiles` once at program initialization, parsing all templates into a single `*Template`. Then we can use the [ExecuteTemplate](https://go.dev/pkg/html/template/#Template.ExecuteTemplate) method to render a specific template → template caching
+
+```go
+var templates = template.Must(template.ParseFiles("edit.html", "view.html"))
+
+func renderTemplate(w http.ResponseWriter, tmpl string, p *Page) {
+    err := templates.ExecuteTemplate(w, tmpl+".html", p)
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+    }
+}
+```
+
+- `template.ParseFiles()` : takes any number of string arguments that identify our template files, and parses those files into templates that are named after the base file name.
+- `templates.ExecuteTemplate()` : render a specific template.
+
+**Validation**
+
+As you may have observed, this program has a serious security flaw: a user can supply an arbitrary path to be read/written on the server. To mitigate this, we can write a function to validate the title with a regular expression.
+
+```go
+var validPath = regexp.MustCompile("^/(edit|save|view)/([a-zA-Z0-9]+)$")
+
+func getTitle(w http.ResponseWriter, r *http.Request) (string, error) {
+    m := validPath.FindStringSubmatch(r.URL.Path)
+    if m == nil {
+        http.NotFound(w, r)
+        return "", errors.New("invalid Page Title")
+    }
+    return m[2], nil // The title is the second subexpression.
+}
+```
+
+- `regexp.MustCompile()` : will parse and compile the regular expression, and return a `regexp.Regexp`.
+- `validPath.FindStringSubmatch()` : validate regex pattern with given parameter.
+
+**Introducing Function Literals and Closures**
+
+Catching the error condition in each handler introduces a lot of repeated code → wrap each of the handlers in a function that does this validation and error checking → Go's [function literals](https://go.dev/ref/spec#Function_literals)
+ provide a powerful means of abstracting functionality.
+
+```go
+func viewHandler(w http.ResponseWriter, r *http.Request, title string)
+func editHandler(w http.ResponseWriter, r *http.Request, title string)
+func saveHandler(w http.ResponseWriter, r *http.Request, title string)
+
+---
+
+func makeHandler(fn func (http.ResponseWriter, *http.Request, string)) http.HandlerFunc {
+    return func(w http.ResponseWriter, r *http.Request) {
+        // Here we will extract the page title from the Request,
+        // and call the provided handler 'fn'
+    }
+}
+
+func main() {
+    http.HandleFunc("/view/", makeHandler(viewHandler))
+    http.HandleFunc("/edit/", makeHandler(editHandler))
+    http.HandleFunc("/save/", makeHandler(saveHandler))
+
+    log.Fatal(http.ListenAndServe(":8080", nil))
+}
+```
+
+- Wrapper function that *takes a function of the above type*, and returns a function of type `http.HandlerFunc`
+- The returned function is called a **closure** because it encloses values defined outside of it.
+
+### **[How to write Go code](https://go.dev/doc/code.html)**
+
+> This doc explains how to develop a simple set of Go packages inside a module, and it shows how to use the [go command](https://go.dev/cmd/go/) to build and test packages.
+
+**Code organization**
+
+- Go programs are organized into packages
+  - A package is a collection of source files in the same directory that are compiled together.
+    - Functions, types, variables, and constants defined in one source file are visible to all other source files within the same package.
+- A repository contains one or more modules.
+  - A module is a collection of related Go packages that are released together.
+  - A Go repository typically contains only one module, located at the root of the repository.
+  - A file named `go.mod` there declares the module path: the import path prefix for all packages within the module. The module contains the packages in the directory containing its `go.mod` file as well as subdirectories of that directory, up to the next subdirectory containing another `go.mod` file (if any).
+  - Each module's path not only serves as an import path prefix for its packages, but also indicates where the `go` command should look to download it.
+    - For example, in order to download the module `golang.org/x/tools`, the `go` command would consult the repository indicated by `https://golang.org/x/tools` (described more [here](https://go.dev/cmd/go/#hdr-Remote_import_paths)).
+  - An import path is a string used to import a package. A package's import path is its module path joined with its subdirectory within the module.
+    - For example, the module `github.com/google/go-cmp` contains a package in the directory `cmp/`. That package's import path is `github.com/google/go-cmp/cmp`. Packages in the standard library do not have a module path prefix.
+
+**Your first program**
+
+```bash
+$ mkdir hello # Alternatively, clone it if it already exists in version control.
+$ cd hello
+$ **go mod init example/user/hello**
+go: creating new go.mod: module example/user/hello
+$ cat go.mod
+module example/user/hello
+
+go 1.16
+$
+```
+
+- To compile and run a simple program, first choose a module path and create a `go.mod` file that declares it.
+- `go mod init` : create go.mod file.
+
+```go
+package main
+
+import "fmt"
+
+func main() {
+    fmt.Println("Hello, world.")
+}
+```
+
+- The first statement in a Go source file must be `package name`. Executable commands must always use `package main`.
+
+```bash
+$ go install example/user/hello
+```
+
+- `go install` : Build and install that program with the `go` tool.
+- This command builds the `hello` command, producing an executable binary. It then installs that binary as `$HOME/go/bin/hello` (or, under Windows, `%USERPROFILE%\go\bin\hello.exe`).
+- The install directory is controlled by the `GOPATH` and `GOBIN` [environment variables](https://go.dev/cmd/go/#hdr-Environment_variables).
+  - If `GOBIN` is set, binaries are installed to that directory.
+  - If `GOPATH` is set, binaries are installed to the `bin` subdirectory of the first directory in the `GOPATH` list. Otherwise, binaries are installed to the `bin` subdirectory of the default `GOPATH` (`$HOME/go` or `%USERPROFILE%\go`).
+
+```bash
+$ go env -w GOBIN=/somewhere/else/bin
+$ go env -u GOBIN
+```
+
+- `go env` command to portably set the default value for an environment variable for future `go` commands.
+  - `go env -w` : set go env
+  - `go env -u` : unset go env
+
+```bash
+echo >> all equivalent
+$ go install example/user/hello
+$ go install .
+$ go install
+```
+
+- Commands like `go install` apply within the context of the module containing the current working directory.
+  - If the working directory is not within the `example/user/hello` module, `go install` may fail.
+- For convenience, `go` commands accept paths relative to the working directory, and default to the package in the current working directory if no other path is given.
+
+```bash
+# Windows users should consult https://github.com/golang/go/wiki/SettingGOPATH
+# for setting %PATH%.
+$ export PATH=$PATH:$(dirname $(go list -f '{{.Target}}' .))
+$ hello
+Hello, world.
+$
+```
+
+- For added convenience, add the install directory to our `PATH` to make running binaries easy
+
+```bash
+$ git init
+Initialized empty Git repository in /home/user/hello/.git/
+$ git add go.mod hello.go
+$ git commit -m "initial commit"
+[master (root-commit) 0b4507d] initial commit
+ 1 file changed, 7 insertion(+)
+ create mode 100644 go.mod hello.go
+$
+```
+
+- If you're using a source control system, now would be a good time to initialize a repository, add the files, and commit your first change.
+- The `go` command locates the repository containing a given module path by requesting a corresponding HTTPS URL and reading metadata embedded in the HTML response (see [go help importpath](https://go.dev/cmd/go/#hdr-Remote_import_paths)). Many hosting services already provide that metadata for repositories containing Go code, so the easiest way to make your module available for others to use is usually to make its module path match the URL for the repository.
+
+**Importing packages from your module**
+
+```go
+// package in directory: $HOME/hello/morestrings
+
+// Package morestrings implements additional functions to manipulate UTF-8
+// encoded strings, beyond what is provided in the standard "strings" package.
+package morestrings
+
+// ReverseRunes returns its argument string reversed rune-wise left to right.
+func ReverseRunes(s string) string {
+...
+}
+```
+
+- Because our `ReverseRunes` function begins with an upper-case letter, it is [exported](https://go.dev/ref/spec#Exported_identifiers), and can be used in other packages that import our `morestrings` package.
+
+```bash
+$ cd $HOME/hello/morestrings
+$ go build
+```
+
+- `go build` : It won't produce an output file. Instead it saves the compiled package in the local build cache.
+
+```go
+package main
+
+import (
+    "fmt"
+
+    "example/user/hello/morestrings"
+)
+
+func main() {
+    fmt.Println(morestrings.ReverseRunes("!oG ,olleH"))
+}
+```
+
+```bash
+go install example/user/hello
+```
+
+- Insert package and install package
+
+**Importing packages from remote modules**
+
+```go
+package main
+
+import (
+    "fmt"
+
+    "github.com/google/go-cmp/cmp"
+)
+
+func main() {
+    fmt.Println(cmp.Diff("Hello World", "Hello Go"))
+}
+```
+
+- An import path can describe how to obtain the package source code using a revision control system such as Git or Mercurial.
+- The `go` tool uses this property to automatically fetch packages from remote repositories. (ex: [github.com/google/go-cmp/cmp](http://github.com/google/go-cmp/cmp))
+
+```bash
+$ go mod tidy
+go: finding module for package github.com/google/go-cmp/cmp
+go: found github.com/google/go-cmp/cmp in github.com/google/go-cmp v0.5.4
+```
+
+- Now that you have a dependency on an external module, you need to download that module and record its version in your `go.mod` file.
+- `go mod tidy` : adds missing module requirements for imported packages and removes requirements on modules that aren't used anymore.
+- Module dependencies are automatically downloaded to the `pkg/mod` subdirectory of the directory indicated by the `GOPATH` environment variable.
+  - The downloaded contents for a given version of a module are shared among all other modules that `require` that version, so the `go` command marks those files and directories as read-only.
+  ```bash
+  $ go clean -modcache
+  $
+  ```
+  - `go clean` : To remove all downloaded modules, pass the `-modcache` flag.
+
+**Testing**
+
+Go has a lightweight test framework composed of the `go test` command and the `testing` package.
+
+```go
+package morestrings
+
+import "testing"
+
+func TestReverseRunes(t *testing.T) {
+    cases := []struct {
+        in, want string
+    }{
+        {"Hello, world", "dlrow ,olleH"},
+        {"Hello, 世界", "界世 ,olleH"},
+        {"", ""},
+    }
+    for _, c := range cases {
+        got := ReverseRunes(c.in)
+        if got != c.want {
+            t.Errorf("ReverseRunes(%q) == %q, want %q", c.in, got, c.want)
+        }
+    }
+}
+```
+
+- Write a test by creating a file with a name ending in `_test.go` that contains functions named `TestXXX` with signature `func (t *testing.T)`.
+  - The test framework runs each such function; if the function calls a failure function such as `t.Error` or `t.Fail`, the test is considered to have failed.
+
+```bash
+$ cd $HOME/hello/morestrings
+$ go test
+PASS
+ok  	example/user/hello/morestrings 0.165s
+$
+```
+
+- `go test` : run test.
 
 ---
 
