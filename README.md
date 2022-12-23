@@ -2675,3 +2675,140 @@ var fetcher = fakeFetcher{
 	},
 }
 ```
+
+# Using and understanding Go
+
+## Accessing databases
+
+### **[Tutorial: Accessing a relational database](https://go.dev/doc/tutorial/database-access)**
+
+> Introduces the basics of accessing a relational database using Go and the `database/sql` package in the standard library.
+
+The [database/sql](https://pkg.go.dev/database/sql) package you’ll be using includes types and functions for connecting to databases, executing transactions, canceling an operation in progress.
+
+**Get a database handle and connect**
+
+```bash
+package main
+
+import "github.com/go-sql-driver/mysql"
+```
+
+- Import the MySQL driver `github.com/go-sql-driver/mysql`.
+
+```bash
+var db *sql.DB
+
+func main() {
+    // Capture connection properties.
+    cfg := mysql.Config{
+        User:   os.Getenv("DBUSER"),
+        Passwd: os.Getenv("DBPASS"),
+        Net:    "tcp",
+        Addr:   "127.0.0.1:3306",
+        DBName: "recordings",
+    }
+    // Get a database handle.
+    var err error
+    db, err = sql.Open("mysql", cfg.FormatDSN())
+    if err != nil {
+        log.Fatal(err)
+    }
+
+    pingErr := db.Ping()
+    if pingErr != nil {
+        log.Fatal(pingErr)
+    }
+    fmt.Println("Connected!")
+}
+```
+
+- `var db *sql.DB` : declare database handle with pointer value.
+- `mysql.Config()`, `cfg.FormatDSN()` : collect connection properties and format them into DSN for connection string.
+- `sql.Open()` : initialize the `db` variable, passing the return value of `FormatDSN`.
+- `db.Ping()` : confirm that connecting to the database works.
+
+**Query for multiple rows**
+
+```bash
+// albumsByArtist queries for albums that have the specified artist name.
+func albumsByArtist(name string) ([]Album, error) {
+	// An album slice to hold data from returned rows.
+	var albums []Album
+
+	rows, err := db.Query("SELECT * FROM album WHERE artist = ?", name)
+	if err != nil {
+		return nil, fmt.Errorf("albumsByArtists %q: %v", name, err)
+	}
+	defer rows.Close()
+    // Loop through rows, using Scan to assign column data to struct fields.
+	for rows.Next() {
+		var alb Album
+		if err := rows.Scan(&alb.ID, &alb.Title, &alb.Artist, &alb.Price); err != nil {
+			return nil, fmt.Errorf("albumsByArtist %q: %v", name, err)
+		}
+		albums = append(albums, alb)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("albumsByArtist %q: %v", name, err)
+	}
+	return albums, nil
+}
+```
+
+- `db.Query()` : execute a `SELECT` statement to query for rows.
+  - By separating the SQL statement from parameter values, you enable the `database/sql` package to send the values separate from the SQL text, removing any SQL injection risk.
+- `defer rows.Close()` : Defer closing `rows` so that any resources it holds will be released when the function exits.
+- `rows.Next()` : loop through rows by reading next row and returns true/false.
+- `rows.Scan()` : assign each row’s column values to (struct) fields.
+  - `Scan` takes a list of pointers to Go values, where the column values will be written. Here, you pass pointers to fields in the `alb` variable, created using the `&` operator. `Scan` writes through the pointers to update the struct fields.
+- `rows.Err()` : After the loop, check for an error from the overall query.
+
+**Query for a single row**
+
+```bash
+// albumByID queries for the album with the specified ID.
+func albumByID(id int64) (Album, error) {
+    // An album to hold data from the returned row.
+    var alb Album
+
+	row := db.QueryRow("SELECT * FROM album WHERE id = ?", id)
+	if err := row.Scan(&alb.ID, &alb.Title, &alb.Artist, &alb.Price); err != nil {
+		if err == sql.ErrNoRows {
+			return alb, fmt.Errorf("albumsById %d: no such album", id)
+		}
+		return alb, fmt.Errorf("albumsById %d: %v", id, err)
+	}
+	return alb, nil
+}
+```
+
+- `db.QueryRow()` : execute a `SELECT` statement to query for at most one row.
+  - To simplify the calling code, `QueryRow` doesn’t return an error. Instead, it arranges to return any query error (such as `sql.ErrNoRows`) from `Rows.Scan` later.
+- `row.Scan()` : copy column values into (struct) fields.
+- `sql.ErrorNoRows` : the special error indicates that the query returned no rows. Typically that error is worth replacing with more specific text, such as “no such album” here.
+
+**Add data**
+
+- To execute SQL statements that returns data, use `Query` or `QueryRow`
+- To execute SQL statements that *don’t* return data, use `Exec`.
+
+```bash
+// addAlbum adds the specified album to the database,
+// returning the album ID of the new entry
+func addAlbum(alb Album) (int64, error) {
+	result, err := db.Exec("INSERT INTO album (title, artist, price) VALUES (?, ?, ?)", alb.Title, alb.Artist, alb.Price)
+	if err != nil {
+		return 0, fmt.Errorf("addAlbum: %v", err)
+	}
+	id, err := result.LastInsertId()
+	if err != nil {
+		return 0, fmt.Errorf("addAlbum: %v", err)
+	}
+	return id, nil
+}
+```
+
+- db.Exec() : execute an `INSERT` statement.
+  - Like `Query`, `Exec` takes an SQL statement followed by parameter values for the SQL statement.
+- `result.LastInsertId()` : retrieve the ID of the inserted database row.
