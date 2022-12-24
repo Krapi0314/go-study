@@ -2812,3 +2812,43 @@ func addAlbum(alb Album) (int64, error) {
 - db.Exec() : execute an `INSERT` statement.
   - Like `Query`, `Exec` takes an SQL statement followed by parameter values for the SQL statement.
 - `result.LastInsertId()` : retrieve the ID of the inserted database row.
+
+### **[Canceling in-progress database operations](https://go.dev/doc/database/cancel-operations)**
+
+> Manage in-progress operations by using Go [context.Context](https://pkg.go.dev/context#Context)
+
+[Go Concurrency Patterns: Context - The Go Programming Language](https://go.dev/blog/context)
+
+A `Context` is a standard Go data value that can report whether the overall operation it represents has been canceled and is no longer needed.
+
+By passing a `context.Context` across function calls and services in your application, those can stop working early and return an error when their processing is no longer needed.
+
+For example:
+
+- End long-running operations, including database operations that are taking too long to complete.
+- Propagate cancellation requests from elsewhere, such as when a client closes a connection.
+
+**Canceling database operations after a timeout**
+
+```go
+func QueryWithTimeout(ctx context.Context) {
+    // Create a Context with a timeout.
+    queryCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
+    defer cancel()
+
+    // Pass the timeout Context with a query.
+    rows, err := db.QueryContext(queryCtx, "SELECT * FROM album")
+    if err != nil {
+        log.Fatal(err)
+    }
+    defer rows.Close()
+
+    // Handle returned rows.
+}
+```
+
+- `context.WithTimeout()`, `context.WithDeadline()` : derive a `Context` with a timeout or deadline, to set a timeout or deadline after which an operation will be canceled.
+- If the outer context is canceled, then the derived context is automatically canceled as well (ex: `ctx` canceled → `queryCtx` canceled)
+  - For example, in HTTP servers, the `http.Request.Context` method returns a context associated with the request. That context is canceled if the HTTP client disconnects or cancels the HTTP request (possible in HTTP/2).
+  - Passing an HTTP request’s context to `QueryWithTimeout` above would cause the database query to stop early *either* if the _overall HTTP request was canceled_ or if the _query took more than five seconds_.
+- Always defer a call to the `cancel` function that’s returned when you create a new `Context` with a timeout or deadline. This releases resources held by the new `Context` when the containing function exits.
