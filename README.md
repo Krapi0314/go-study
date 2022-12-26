@@ -2852,3 +2852,67 @@ func QueryWithTimeout(ctx context.Context) {
   - For example, in HTTP servers, the `http.Request.Context` method returns a context associated with the request. That context is canceled if the HTTP client disconnects or cancels the HTTP request (possible in HTTP/2).
   - Passing an HTTP request’s context to `QueryWithTimeout` above would cause the database query to stop early *either* if the _overall HTTP request was canceled_ or if the _query took more than five seconds_.
 - Always defer a call to the `cancel` function that’s returned when you create a new `Context` with a timeout or deadline. This releases resources held by the new `Context` when the containing function exits.
+
+# Others
+
+## gRPC
+
+### ****[Quick start](https://grpc.io/docs/languages/go/quickstart/)****
+
+**Define Service**
+
+```go
+// The greeting service definition.
+service Greeter {
+  // Sends a greeting
+  rpc SayHello (HelloRequest) returns (HelloReply) {}
+  // Sends another greeting
+  rpc SayHelloAgain (HelloRequest) returns (HelloReply) {}
+}
+
+// The request message containing the user's name.
+message HelloRequest {
+  string name = 1;
+}
+
+// The response message containing the greetings
+message HelloReply {
+  string message = 1;
+}
+```
+
+Write protocol buffers (`.proto`) to define gRPC service.
+
+Generate gRPC code
+
+```bash
+protoc --go_out=. --go_opt=paths=source_relative \
+    --go-grpc_out=. --go-grpc_opt=paths=source_relative \
+    helloworld/helloworld.proto
+```
+
+This command generates the `XXX.pb.go` and `XXX_grpc.pb.go` files, which contain:
+
+- Code for populating, serializing, and retrieving message types.
+- Generated client and server code.
+
+Update and run the application
+
+```go
+// greeter_server/main.go
+func (s *server) SayHelloAgain(ctx context.Context, in *pb.HelloRequest) (*pb.HelloReply, error) {
+        return &pb.HelloReply{Message: "Hello again " + in.GetName()}, nil
+}
+```
+
+```go
+// greeter_client/main.go
+r, err = c.SayHelloAgain(ctx, &pb.HelloRequest{Name: *name})
+if err != nil {
+        log.Fatalf("could not greet: %v", err)
+}
+log.Printf("Greeting: %s", r.GetMessage())
+```
+
+Implement and call the method in the human-written parts
+
