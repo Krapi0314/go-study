@@ -2857,7 +2857,7 @@ func QueryWithTimeout(ctx context.Context) {
 
 ## gRPC
 
-### ****[Quick start](https://grpc.io/docs/languages/go/quickstart/)****
+### \***\*[Quick start](https://grpc.io/docs/languages/go/quickstart/)\*\***
 
 **Define Service**
 
@@ -2916,7 +2916,7 @@ log.Printf("Greeting: %s", r.GetMessage())
 
 Implement and call the method in the human-written parts
 
-### ****[Basics tutorial](https://grpc.io/docs/languages/go/basics/)****
+### \***\*[Basics tutorial](https://grpc.io/docs/languages/go/basics/)\*\***
 
 **Why use gRPC?**
 
@@ -2926,9 +2926,9 @@ All the complexity of communication between different languages and environments
 
 Protocol buffers supports efficient serialization, a simple IDL, and easy interface updating.
 
-****Defining the service****
+\***\*Defining the service\*\***
 
- First step is to define the gRPC *service* and the method *request*
+First step is to define the gRPC *service* and the method *request*
  and *response* types using [protocol buffers](https://developers.google.com/protocol-buffers/docs/overview).
 
 ```protobuf
@@ -2936,18 +2936,18 @@ service RouteGuide {
 	// client sends a reqeust
 	// and waits for a reponse to come back
 	rpc GetFeature(Point) returns (Feature) {}
-	
+
 	// server-side streaming RPC
 	// client sends a request to the server
 	// and gets a stream to read a sequence of messages back
 	rpc ListFeatures(Rectangle) returns (stream Feature) {}
-	
+
 	// client-side streaming RPC
 	// client writes/sends a sequence of messages to the server
 	// and waits for the server to read them all
 	// and return its response
 	rpc RecordRoute(stream Point) returns (RouteSummary) {}
-	
+
 	// bidirectional streaming RPC
 	// both sides send a sequence of messages using a read-write stream
 	// The two streams operate independently,
@@ -2968,7 +2968,7 @@ message Point {
 
 `.proto` file also contains protocol buffer message type definitions for all the request and response types used in our service methods
 
-****Generating client and server code****
+\***\*Generating client and server code\*\***
 
 Next generate the gRPC client and server interfaces from our `.proto` service definition. We do this using the protocol buffer compiler `protoc` with a special gRPC Go plugin.
 
@@ -2982,11 +2982,10 @@ This generates the following files:
 
 - `XXX.pb.go`, which contains all the protocol buffer code to populate, serialize, and retrieve request and response message types.
 - `XXX_grpc.pb.go`, which contains the following:
-    - An interface type (or *stub*) for clients to call with the methods defined in the service.
-    - An interface type for servers to implement, also with the methods defined in the service.
-    
+  - An interface type (or *stub*) for clients to call with the methods defined in the service.
+  - An interface type for servers to implement, also with the methods defined in the service.
 
-****Creating the server****
+\***\*Creating the server\*\***
 
 There are two parts to making service do its job:
 
@@ -3023,104 +3022,95 @@ func (s *routeGuideServer) RouteChat(stream pb.RouteGuide_RouteChatServer) error
 ```
 
 - **Simle RPC**
-    
-    ```go
-    func (s *routeGuideServer) GetFeature(ctx context.Context, point *pb.Point) (*pb.Feature, error) {
+  ```go
+  func (s *routeGuideServer) GetFeature(ctx context.Context, point *pb.Point) (*pb.Feature, error) {
+    for _, feature := range s.savedFeatures {
+      if proto.Equal(feature.Location, point) {
+        return feature, nil
+      }
+    }
+    // No feature was found, return an unnamed feature
+    return &pb.Feature{Location: point}, nil
+  }
+  ```
+  - In the method, we populate response object (Feature) with the appropriate information, and then `return` it along with a `nil` error to tell gRPC that we’ve finished dealing with the RPC and that the response object can be returned to the client.
+- \***\*Server-side streaming RPC\*\***
+  ```go
+  func (s *routeGuideServer) ListFeatures(rect *pb.Rectangle, stream pb.RouteGuide_ListFeaturesServer) error {
+    for _, feature := range s.savedFeatures {
+      if inRange(feature.Location, rect) {
+        if err := stream.Send(feature); err != nil {
+          return err
+        }
+      }
+    }
+    return nil
+  }
+  ```
+  - In the method, we populate as many request (Feature) objects as we need to return, writing them to the `RouteGuide_ListFeaturesServer` using its `Send()` method.
+  - return a `nil` error to tell gRPC that we’ve finished writing responses. If any error ocurrs, return a `non-nil` error; the gRPC layer will translate it into an appropriate RPC status to be sent on the wire.
+- \***\*Client-side streaming RPC\*\***
+  ```go
+  func (s *routeGuideServer) RecordRoute(stream pb.RouteGuide_RecordRouteServer) error {
+    var pointCount, featureCount, distance int32
+    var lastPoint *pb.Point
+    startTime := time.Now()
+    for {
+      point, err := stream.Recv()
+      if err == io.EOF {
+        endTime := time.Now()
+        return stream.SendAndClose(&pb.RouteSummary{
+          PointCount:   pointCount,
+          FeatureCount: featureCount,
+          Distance:     distance,
+          ElapsedTime:  int32(endTime.Sub(startTime).Seconds()),
+        })
+      }
+      if err != nil {
+        return err
+      }
+      pointCount++
       for _, feature := range s.savedFeatures {
         if proto.Equal(feature.Location, point) {
-          return feature, nil
+          featureCount++
         }
       }
-      // No feature was found, return an unnamed feature
-      return &pb.Feature{Location: point}, nil
-    }
-    ```
-    
-    - In the method, we populate response object (Feature) with the appropriate information, and then `return` it along with a `nil` error to tell gRPC that we’ve finished dealing with the RPC and that the response object can be returned to the client.
-- ****Server-side streaming RPC****
-    
-    ```go
-    func (s *routeGuideServer) ListFeatures(rect *pb.Rectangle, stream pb.RouteGuide_ListFeaturesServer) error {
-      for _, feature := range s.savedFeatures {
-        if inRange(feature.Location, rect) {
-          if err := stream.Send(feature); err != nil {
-            return err
-          }
-        }
+      if lastPoint != nil {
+        distance += calcDistance(lastPoint, point)
       }
-      return nil
+      lastPoint = point
     }
-    ```
-    
-    - In the method, we populate as many request (Feature) objects as we need to return, writing them to the `RouteGuide_ListFeaturesServer` using its `Send()` method.
-    - return a `nil` error to tell gRPC that we’ve finished writing responses. If any error ocurrs, return a `non-nil` error; the gRPC layer will translate it into an appropriate RPC status to be sent on the wire.
-- ****Client-side streaming RPC****
-    
-    ```go
-    func (s *routeGuideServer) RecordRoute(stream pb.RouteGuide_RecordRouteServer) error {
-      var pointCount, featureCount, distance int32
-      var lastPoint *pb.Point
-      startTime := time.Now()
-      for {
-        point, err := stream.Recv()
-        if err == io.EOF {
-          endTime := time.Now()
-          return stream.SendAndClose(&pb.RouteSummary{
-            PointCount:   pointCount,
-            FeatureCount: featureCount,
-            Distance:     distance,
-            ElapsedTime:  int32(endTime.Sub(startTime).Seconds()),
-          })
-        }
-        if err != nil {
+  }
+  ```
+  - `RouteGuide_RecordRouteServer` stream, which the server can use to both read *and* write messages - it can receive client messages using its `Recv()` method and return its single response using its `SendAndClose()` method.
+  - In the method, use the `RouteGuide_RecordRouteServer`’s `Recv()` method to repeatedly read in our client’s requests to a request object (Point) until there are no more messages.
+  - the server needs to check the error returned from `Recv()` after each call. If this is `nil`, the stream is still good and it can continue reading; if it’s `io.EOF` the message stream has ended and the server can return its response (RouteSummary).
+  - If it has any other value, we return the error “as is” so that it’ll be translated to an RPC status by the gRPC layer.
+- \***\*Bidirectional streaming RPC\*\***
+  ```go
+  func (s *routeGuideServer) RouteChat(stream pb.RouteGuide_RouteChatServer) error {
+    for {
+      in, err := stream.Recv()
+      if err == io.EOF {
+        return nil
+      }
+      if err != nil {
+        return err
+      }
+      key := serialize(in.Location)
+                  ... // look for notes to be sent to client
+      for _, note := range s.routeNotes[key] {
+        if err := stream.Send(note); err != nil {
           return err
         }
-        pointCount++
-        for _, feature := range s.savedFeatures {
-          if proto.Equal(feature.Location, point) {
-            featureCount++
-          }
-        }
-        if lastPoint != nil {
-          distance += calcDistance(lastPoint, point)
-        }
-        lastPoint = point
       }
     }
-    ```
-    
-    - `RouteGuide_RecordRouteServer` stream, which the server can use to both read *and* write messages - it can receive client messages using its `Recv()` method and return its single response using its `SendAndClose()` method.
-    - In the method, use the `RouteGuide_RecordRouteServer`’s `Recv()` method to repeatedly read in our client’s requests to a request object (Point) until there are no more messages.
-    - the server needs to check the error returned from `Recv()` after each call. If this is `nil`, the stream is still good and it can continue reading; if it’s `io.EOF` the message stream has ended and the server can return its response (RouteSummary).
-    - If it has any other value, we return the error “as is” so that it’ll be translated to an RPC status by the gRPC layer.
-- ****Bidirectional streaming RPC****
-    
-    ```go
-    func (s *routeGuideServer) RouteChat(stream pb.RouteGuide_RouteChatServer) error {
-      for {
-        in, err := stream.Recv()
-        if err == io.EOF {
-          return nil
-        }
-        if err != nil {
-          return err
-        }
-        key := serialize(in.Location)
-                    ... // look for notes to be sent to client
-        for _, note := range s.routeNotes[key] {
-          if err := stream.Send(note); err != nil {
-            return err
-          }
-        }
-      }
-    }
-    ```
-    
-    - Very similar to our client-streaming method, except the server uses the stream’s `Send()` method rather than `SendAndClose()` because it’s writing multiple responses.
-    - Although each side will always get the other’s messages in the order they were written, both the client and server can read and write in any order — the streams operate completely independently.
-    
+  }
+  ```
+  - Very similar to our client-streaming method, except the server uses the stream’s `Send()` method rather than `SendAndClose()` because it’s writing multiple responses.
+  - Although each side will always get the other’s messages in the order they were written, both the client and server can read and write in any order — the streams operate completely independently.
 
-****Starting the server****
+\***\*Starting the server\*\***
 
 ```go
 flag.Parse()
@@ -3140,14 +3130,14 @@ grpcServer.Serve(lis)
 3. Register our service implementation with the gRPC server.
 4. Call `Serve()` on the server with our port details to do a blocking wait until the process is killed or `Stop()` is called.
 
-****Creating the client****
+\***\*Creating the client\*\***
 
 There are two parts to making client do its job:
 
 1. Creating a stub
 2. Calling service methods
 
-****Creating a stub****
+\***\*Creating a stub\*\***
 
 ```go
 var opts []grpc.DialOption
@@ -3168,106 +3158,182 @@ client := pb.NewRouteGuideClient(conn)
 
 - Once the gRPC *channel* is setup, we need a client *stub* to perform RPCs. We get it using the method (NewRouteGuideClient) provided by the `pb` package generated from the example `.proto` file.
 
-****Calling service methods[](https://grpc.io/docs/languages/go/basics/#calling-service-methods)**
+\***\*Calling service methods[](https://grpc.io/docs/languages/go/basics/#calling-service-methods)**
 
 In gRPC-Go, RPCs operate in a **blocking/synchronous** mode, which means that the RPC call waits for the server to respond, and will either return a response or an error.
 
-- ****Simple RPC[](https://grpc.io/docs/languages/go/basics/#simple-rpc-1)**
-    
-    ```go
-    feature, err := client.GetFeature(context.Background(), &pb.Point{409146138, -746188906})
-    if err != nil {
-      ...
+- \***\*Simple RPC[](https://grpc.io/docs/languages/go/basics/#simple-rpc-1)**
+  ```go
+  feature, err := client.GetFeature(context.Background(), &pb.Point{409146138, -746188906})
+  if err != nil {
+    ...
+  }
+  ```
+  - we call the method on the stub we got earlier with protofocol buffer object (Point) method parmeters.
+  - We also pass a `context.Context` object which lets us change our RPC’s behavior if necessary, such as time-out/cancel an RPC in flight.
+  - If the call doesn’t return an error, then we can read the response information from the server from the first return value.
+- \***\*Server-side streaming RPC[](https://grpc.io/docs/languages/go/basics/#server-side-streaming-rpc-1)**
+  ```go
+  rect := &pb.Rectangle{ ... }  // initialize a pb.Rectangle
+  stream, err := client.ListFeatures(context.Background(), rect)
+  if err != nil {
+    ...
+  }
+  for {
+      feature, err := stream.Recv()
+      if err == io.EOF {
+          break
+      }
+      if err != nil {
+          log.Fatalf("%v.ListFeatures(_) = _, %v", client, err)
+      }
+      log.Println(feature)
+  }
+  ```
+  - Looks similar with server-side streaming RPC implementation.
+  - On request, we get back an instance of `RouteGuide_ListFeaturesClient`. The client can use the `RouteGuide_ListFeaturesClient` stream to read the server’s responses.
+  - We use the `RouteGuide_ListFeaturesClient`’s `Recv()`  method to repeatedly read in the server’s responses to a response protocol buffer object (Feature) until there are no more messages.
+  - The client needs to check the error `err` returned from `Recv()` after each call. If `nil`, the stream is still good and it can continue reading; if it’s `io.EOF` then the message stream has ended; otherwise there must be an RPC error, which is passed over through `err`.
+- \***\*Client-side streaming RPC[](https://grpc.io/docs/languages/go/basics/#client-side-streaming-rpc-1)**
+  ```go
+  // Create a random number of random points
+  r := rand.New(rand.NewSource(time.Now().UnixNano()))
+  pointCount := int(r.Int31n(100)) + 2 // Traverse at least two points
+  var points []*pb.Point
+  for i := 0; i < pointCount; i++ {
+    points = append(points, randomPoint(r))
+  }
+  log.Printf("Traversing %d points.", len(points))
+  stream, err := client.RecordRoute(context.Background())
+  if err != nil {
+    log.Fatalf("%v.RecordRoute(_) = _, %v", client, err)
+  }
+  for _, point := range points {
+    if err := stream.Send(point); err != nil {
+      log.Fatalf("%v.Send(%v) = %v", stream, point, err)
     }
-    ```
-    
-    - we call the method on the stub we got earlier with protofocol buffer object (Point) method parmeters.
-    - We also pass a `context.Context` object which lets us change our RPC’s behavior if necessary, such as time-out/cancel an RPC in flight.
-    - If the call doesn’t return an error, then we can read the response information from the server from the first return value.
-- ****Server-side streaming RPC[](https://grpc.io/docs/languages/go/basics/#server-side-streaming-rpc-1)**
-    
-    ```go
-    rect := &pb.Rectangle{ ... }  // initialize a pb.Rectangle
-    stream, err := client.ListFeatures(context.Background(), rect)
-    if err != nil {
-      ...
-    }
+  }
+  reply, err := stream.CloseAndRecv()
+  if err != nil {
+    log.Fatalf("%v.CloseAndRecv() got error %v, want %v", stream, err, nil)
+  }
+  log.Printf("Route summary: %v", reply)
+  ```
+  - Looks similar with server-side streaming RPC implementation.
+  - The `RouteGuide_RecordRouteClient` has a `Send()` method that we can use to send requests to the server.
+  - Once we’ve finished writing our client’s requests to the stream using `Send()`, we need to call `CloseAndRecv()` on the stream to let gRPC know that we’ve finished writing and are expecting to receive a response.
+  - We get our RPC status from the `err` returned from `CloseAndRecv()`. If the status is `nil`, then the first return value from `CloseAndRecv()` will be a valid server response.
+- \***\*Bidirectional streaming RPC[](https://grpc.io/docs/languages/go/basics/#bidirectional-streaming-rpc-1)**
+  ```go
+  stream, err := client.RouteChat(context.Background())
+  waitc := make(chan struct{})
+  go func() {
     for {
-        feature, err := stream.Recv()
-        if err == io.EOF {
-            break
-        }
-        if err != nil {
-            log.Fatalf("%v.ListFeatures(_) = _, %v", client, err)
-        }
-        log.Println(feature)
-    }
-    ```
-    
-    - Looks similar with server-side streaming RPC implementation.
-    - On request, we get back an instance of `RouteGuide_ListFeaturesClient`. The client can use the `RouteGuide_ListFeaturesClient` stream to read the server’s responses.
-    - We use the `RouteGuide_ListFeaturesClient`’s `Recv()`  method to repeatedly read in the server’s responses to a response protocol buffer object (Feature) until there are no more messages.
-    - The client needs to check the error `err` returned from `Recv()` after each call. If `nil`, the stream is still good and it can continue reading; if it’s `io.EOF` then the message stream has ended; otherwise there must be an RPC error, which is passed over through `err`.
-- ****Client-side streaming RPC[](https://grpc.io/docs/languages/go/basics/#client-side-streaming-rpc-1)**
-    
-    ```go
-    // Create a random number of random points
-    r := rand.New(rand.NewSource(time.Now().UnixNano()))
-    pointCount := int(r.Int31n(100)) + 2 // Traverse at least two points
-    var points []*pb.Point
-    for i := 0; i < pointCount; i++ {
-      points = append(points, randomPoint(r))
-    }
-    log.Printf("Traversing %d points.", len(points))
-    stream, err := client.RecordRoute(context.Background())
-    if err != nil {
-      log.Fatalf("%v.RecordRoute(_) = _, %v", client, err)
-    }
-    for _, point := range points {
-      if err := stream.Send(point); err != nil {
-        log.Fatalf("%v.Send(%v) = %v", stream, point, err)
+      in, err := stream.Recv()
+      if err == io.EOF {
+        // read done.
+        close(waitc)
+        return
       }
-    }
-    reply, err := stream.CloseAndRecv()
-    if err != nil {
-      log.Fatalf("%v.CloseAndRecv() got error %v, want %v", stream, err, nil)
-    }
-    log.Printf("Route summary: %v", reply)
-    ```
-    
-    - Looks similar with server-side streaming RPC implementation.
-    - The `RouteGuide_RecordRouteClient` has a `Send()` method that we can use to send requests to the server.
-    - Once we’ve finished writing our client’s requests to the stream using `Send()`, we need to call `CloseAndRecv()` on the stream to let gRPC know that we’ve finished writing and are expecting to receive a response.
-    - We get our RPC status from the `err` returned from `CloseAndRecv()`. If the status is `nil`, then the first return value from `CloseAndRecv()` will be a valid server response.
-- ****Bidirectional streaming RPC[](https://grpc.io/docs/languages/go/basics/#bidirectional-streaming-rpc-1)**
-    
-    ```go
-    stream, err := client.RouteChat(context.Background())
-    waitc := make(chan struct{})
-    go func() {
-      for {
-        in, err := stream.Recv()
-        if err == io.EOF {
-          // read done.
-          close(waitc)
-          return
-        }
-        if err != nil {
-          log.Fatalf("Failed to receive a note : %v", err)
-        }
-        log.Printf("Got message %s at point(%d, %d)", in.Message, in.Location.Latitude, in.Location.Longitude)
+      if err != nil {
+        log.Fatalf("Failed to receive a note : %v", err)
       }
-    }()
-    for _, note := range notes {
-      if err := stream.Send(note); err != nil {
-        log.Fatalf("Failed to send a note: %v", err)
-      }
+      log.Printf("Got message %s at point(%d, %d)", in.Message, in.Location.Latitude, in.Location.Longitude)
     }
-    stream.CloseSend()
-    <-waitc
-    ```
-    
-    - We only pass the method a context object and get back a stream that we can use to both write and read messages.
-    - However, we return values via our method’s stream while the server is still writing messages to *their* message stream.
-    - We use the stream’s `CloseSend()` method once we’ve finished our call.
-    - Although each side will always get the other’s messages in the order they were written, both the client and server can read and write in any order — the streams operate completely independently.
+  }()
+  for _, note := range notes {
+    if err := stream.Send(note); err != nil {
+      log.Fatalf("Failed to send a note: %v", err)
+    }
+  }
+  stream.CloseSend()
+  <-waitc
+  ```
+  - We only pass the method a context object and get back a stream that we can use to both write and read messages.
+  - However, we return values via our method’s stream while the server is still writing messages to *their* message stream.
+  - We use the stream’s `CloseSend()` method once we’ve finished our call.
+  - Although each side will always get the other’s messages in the order they were written, both the client and server can read and write in any order — the streams operate completely independently.
+
+## Mongo
+
+### [Quick Start](https://www.mongodb.com/docs/drivers/go/current/quick-start/#std-label-golang-quickstart)
+
+\***\*Set up Your Project\*\***
+
+`go mod init go-quickstart` : initalize with Go mod
+
+`go get [go.mongodb.org/mongo-driver/mongo](http://go.mongodb.org/mongo-driver/mongo)` : Add MongoDB as a Dependency
+
+`go get [github.com/joho/godotenv](http://github.com/joho/godotenv)` : Add Other Dependencies (env)
+
+\***\*Create a MongoDB Cluster\*\***
+
+[Get Started with Atlas](https://www.mongodb.com/docs/atlas/getting-started/) : Set up a Free Tier Cluster in Atlas, and set [sample datasets loaded](https://www.mongodb.com/docs/atlas/sample-data/)
+
+`export MONGODB_URI='<your atlas connection string>’` : Set env for mongo altas connection string
+
+\***\*Query Your MongoDB Cluster from Your Application\*\***
+
+```go
+package main
+
+import (
+	"context"
+	"encoding/json"
+	"fmt"
+	"log"
+	"os"
+
+	"github.com/joho/godotenv"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
+)
+
+func main() {
+	if err := godotenv.Load(); err != nil {
+		log.Println("No .env file found")
+	}
+
+	uri := os.Getenv("MONGODB_URI")
+	if uri == "" {
+		log.Fatal("You must set your 'MONGODB_URI' environmental variable. See\n\t https://www.mongodb.com/docs/drivers/go/current/usage-examples/#environment-variable")
+	}
+	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(uri))
+	if err != nil {
+		panic(err)
+	}
+
+	defer func() {
+		if err := client.Disconnect(context.TODO()); err != nil {
+			panic(err)
+		}
+	}()
+
+	coll := client.Database("sample_mflix").Collection("movies")
+	title := "Back to the Future"
+
+	var result bson.M
+	err = coll.FindOne(context.TODO(), bson.D{{"title", title}}).Decode(&result)
+	if err == mongo.ErrNoDocuments {
+		fmt.Printf("No document was found with the title %s\n", title)
+		return
+	}
+	if err != nil {
+		panic(err)
+	}
+
+	jsonData, err := json.MarshalIndent(result, "", "    ")
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("%s\n", jsonData)
+}
+```
+
+- `godotenv.Load()`, `os.Getenv()` : get env for mongo connection string.
+- `mongo.Connect(context.TODO(), options.Client().ApplyURI(uri))` : connect to mongoDB with context.
+- `defer func() { client.Disconnect(context.TODO()) }` : disconnect mongoDB after function finishes with `defer func()`.
+- `coll := client.Database("sample_mflix").Collection("movies")` : get collection instance.
+- `coll.FindOne(context.TODO(), bson.D{{"title", title}}).Decode(&result)` : query findOne in mongoDB, with `bson.D`. Then decode and save in result.
+- `jsonData, err := json.MarshalIndent(result, **""**, **"    "**)` : marshal json and chang e indentation length.
